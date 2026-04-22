@@ -27,7 +27,7 @@ export function SiteFooter() {
             href="/account"
             className="rounded-full border border-[var(--app-border)] px-3 py-2 transition-colors hover:border-[var(--app-border-strong)] hover:text-[var(--app-fg)]"
           >
-            登录 / 注册
+            登录
           </Link>
         </div>
       </div>

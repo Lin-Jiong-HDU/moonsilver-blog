@@ -2,7 +2,7 @@ import path from "node:path";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { ADMIN_USER, normalizeUsers, type StoredUser } from "@/app/lib/auth-data";
 
-const AUTH_STORE_PATH = path.join(process.cwd(), "data", "users.json");
+const AUTH_STORE_PATH = path.join(process.cwd(), "data", "accounts.json");
 
 async function ensureStoreFile() {
   await mkdir(path.dirname(AUTH_STORE_PATH), { recursive: true });
@@ -14,7 +14,7 @@ async function ensureStoreFile() {
   }
 }
 
-export async function readUsers(): Promise<StoredUser[]> {
+export async function readAccounts(): Promise<StoredUser[]> {
   await ensureStoreFile();
 
   try {
@@ -31,11 +31,4 @@ export async function readUsers(): Promise<StoredUser[]> {
     await writeFile(AUTH_STORE_PATH, JSON.stringify([ADMIN_USER], null, 2), "utf8");
     return [ADMIN_USER];
   }
-}
-
-export async function replaceUsers(users: StoredUser[]): Promise<StoredUser[]> {
-  const nextUsers = normalizeUsers(users);
-  await ensureStoreFile();
-  await writeFile(AUTH_STORE_PATH, JSON.stringify(nextUsers, null, 2), "utf8");
-  return nextUsers;
 }

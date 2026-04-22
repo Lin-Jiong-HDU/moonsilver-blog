@@ -94,7 +94,7 @@ export function SiteNavbar() {
               href="/account"
               className="rounded-full border border-[var(--app-border)] px-3 py-2 text-xs text-[var(--app-muted)] transition-colors hover:border-[var(--app-border-strong)] hover:text-[var(--app-fg)]"
             >
-              {user ? user.username : "登录 / 注册"}
+              {user ? user.username : "登录"}
             </Link>
             {user ? (
               <button

@@ -4,4 +4,9 @@
     "password": "msv",
     "isAdmin": true
   }
+  {
+    "username": "zhn",
+    "password": "1",
+    "isAdmin": false
+  }
 ]

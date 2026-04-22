@@ -4,11 +4,8 @@ import Link from "next/link";
 import { useMemo, useState } from "react";
 import { useAuth } from "@/app/components/auth-provider";
 
-type Mode = "login" | "register";
-
 export function AccountClient() {
-  const { user, login, register, logout } = useAuth();
-  const [mode, setMode] = useState<Mode>("login");
+  const { user, login, logout } = useAuth();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState<string | null>(null);
@@ -18,17 +15,9 @@ export function AccountClient() {
 
   async function handleSubmit() {
     setIsSubmitting(true);
-    const success = mode === "login" ? await login(username, password) : await register(username, password);
+    const success = await login(username, password);
 
-    setMessage(
-      success
-        ? mode === "login"
-          ? "登录成功。"
-          : "注册成功并已登录。"
-        : mode === "login"
-          ? "账号或密码不正确。"
-          : "用户名已存在，或者输入为空。",
-    );
+    setMessage(success ? "登录成功。" : "账号或密码不正确。");
     setIsSubmitting(false);
   }
 
@@ -37,47 +26,22 @@ export function AccountClient() {
       <section className="mx-auto max-w-4xl px-6 py-16">
         <div className="max-w-2xl">
           <p className="text-xs uppercase tracking-[0.25em] text-[var(--app-muted)]">Account</p>
-          <h1 className="mt-4 text-4xl font-bold tracking-tight md:text-5xl">登录 / 注册</h1>
+          <h1 className="mt-4 text-4xl font-bold tracking-tight md:text-5xl">登录</h1>
           <p className="mt-4 text-sm leading-relaxed text-[var(--app-muted)]">
-            登录后可以查看竞赛页。只有管理员账号可以编辑博客内容。
+            这里只保留登录入口。体验账号由站点统一发放，不再开放注册。
           </p>
         </div>
 
         <div className="mt-12 grid gap-6 lg:grid-cols-[0.9fr_1.1fr]">
           <div className="rounded-[28px] border border-[var(--app-border)] bg-[var(--app-surface)]/70 p-6 md:p-8">
-            <div className="flex gap-2">
-              <button
-                type="button"
-                onClick={() => setMode("login")}
-                className={`rounded-full px-4 py-2 text-sm transition-colors ${
-                  mode === "login"
-                    ? "bg-[var(--app-fg)] text-[var(--app-bg)]"
-                    : "border border-[var(--app-border)] text-[var(--app-muted)] hover:border-[var(--app-border-strong)] hover:text-[var(--app-fg)]"
-                }`}
-              >
-                登录
-              </button>
-              <button
-                type="button"
-                onClick={() => setMode("register")}
-                className={`rounded-full px-4 py-2 text-sm transition-colors ${
-                  mode === "register"
-                    ? "bg-[var(--app-fg)] text-[var(--app-bg)]"
-                    : "border border-[var(--app-border)] text-[var(--app-muted)] hover:border-[var(--app-border-strong)] hover:text-[var(--app-fg)]"
-                }`}
-              >
-                注册
-              </button>
-            </div>
-
-            <div className="mt-8 space-y-4">
+            <div className="space-y-4">
               <label className="block">
                 <span className="text-xs uppercase tracking-[0.2em] text-[var(--app-muted)]">Username</span>
                 <input
                   value={username}
                   onChange={(event) => setUsername(event.target.value)}
                   className="mt-2 w-full rounded-2xl border border-[var(--app-border)] bg-[var(--app-bg)] px-4 py-3 text-sm text-[var(--app-fg)] outline-none transition-colors placeholder:text-[var(--app-muted)] focus:border-[var(--app-border-strong)]"
-                  placeholder="请输入用户名"
+                  placeholder="请输入体验账号"
                 />
               </label>
 
@@ -98,7 +62,7 @@ export function AccountClient() {
                 disabled={isSubmitting}
                 className="w-full rounded-full bg-[var(--app-fg)] px-5 py-3 text-sm font-medium text-[var(--app-bg)] transition-colors hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
               >
-                {isSubmitting ? "处理中..." : mode === "login" ? "登录" : "注册并登录"}
+                {isSubmitting ? "处理中..." : "登录"}
               </button>
 
               {message ? (
@@ -127,9 +91,9 @@ export function AccountClient() {
             <div className="rounded-[28px] border border-[var(--app-border)] bg-[var(--app-surface)]/70 p-6 md:p-8">
               <p className="text-xs uppercase tracking-[0.2em] text-[var(--app-muted)]">Rules</p>
               <div className="mt-4 space-y-3 text-sm leading-relaxed text-[var(--app-muted)]">
+                <p>• 体验账号由站点统一发放。</p>
+                <p>• 账号信息保存在站点服务器，不只在本地浏览器里。</p>
                 <p>• 管理员账号用于博客编辑。</p>
-                <p>• 普通注册账号只用于解锁竞赛页。</p>
-                <p>• 注册信息保存在站点服务器，不会只留在本地浏览器。</p>
                 <p>{adminHint}</p>
               </div>
             </div>

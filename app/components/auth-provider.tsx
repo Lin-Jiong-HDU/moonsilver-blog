@@ -6,7 +6,6 @@ import type { AuthUser } from "@/app/lib/auth-data";
 type AuthContextValue = {
   user: AuthUser | null;
   login: (username: string, password: string) => Promise<boolean>;
-  register: (username: string, password: string) => Promise<boolean>;
   logout: () => void;
 };
 
@@ -52,14 +51,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
     }
 
-    async function submitAuth(action: "login" | "register", username: string, password: string) {
+    async function submitLogin(username: string, password: string) {
       const response = await fetch("/api/auth", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          action,
           username,
           password,
         }),
@@ -87,28 +85,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           return false;
         }
 
-        const matched = await submitAuth("login", trimmedUsername, trimmedPassword);
+        const matched = await submitLogin(trimmedUsername, trimmedPassword);
         if (!matched) {
           return false;
         }
 
         persistCurrent(matched);
-        return true;
-      },
-      async register(username, password) {
-        const trimmedUsername = username.trim();
-        const trimmedPassword = password.trim();
-
-        if (!trimmedUsername || !trimmedPassword) {
-          return false;
-        }
-
-        const created = await submitAuth("register", trimmedUsername, trimmedPassword);
-        if (!created) {
-          return false;
-        }
-
-        persistCurrent(created);
         return true;
       },
       logout() {
