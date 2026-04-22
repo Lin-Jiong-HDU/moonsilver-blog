@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import { JobtiClient } from "@/app/jobti/jobti-client";
 
 export const metadata: Metadata = {
-  title: "Jobti V16",
-  description: "80 题、16 型、1020 岗位的职业向量码测绘。",
+  title: "Jobti",
+  description: "放在娱乐区里的职业测绘小游戏。",
 };
 
 export default function JobtiPage() {

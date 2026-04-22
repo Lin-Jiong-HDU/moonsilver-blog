@@ -195,5 +195,5 @@ export function calculateJobtiResult(answers: Array<number | null>): JobtiResult
 }
 
 export function createEmptyAnswers() {
-  return Array.from({ length: 80 }, () => null as number | null);
+  return Array.from({ length: normalizedQuestions.length }, () => null as number | null);
 }

@@ -1,77 +1,208 @@
-import Link from "next/link";
+const awards = [
+  { icon: "🏅", title: "三次一等奖学金", sub: "杭州电子科技大学" },
+  { icon: "🏛️", title: "省政府奖学金", sub: "浙江省人民政府" },
+  { icon: "⭐", title: "校三好学生", sub: "杭州电子科技大学" },
+  { icon: "🔴", title: "优秀共青团员", sub: "共青团" },
+];
 
-const destinations = [
+const contests = [
+  { award: "省一", name: "全国大学生数学建模竞赛" },
+  { award: "省二", name: "中国国际服务贸易交易会服务外包创新创业大赛" },
+  { award: "省铜", name: "挑战杯全国大学生课外学术科技作品竞赛" },
+  { award: "省三", name: "中国人工智能大赛" },
+  { award: "国二", name: "APMCM亚太地区数学建模竞赛（中文赛道）" },
+  { award: "国二", name: "APMCM亚太地区数学建模竞赛（英文赛道）" },
+];
+
+const research = [
   {
-    href: "/jobti",
-    index: "01",
-    title: "Jobti 职业测绘",
+    icon: "🎓",
+    title: "清华大学科研实习",
+    desc: "在清华大学相关实验室参与科研项目，积累学术研究经验。",
   },
   {
-    href: "/super-spy-racer",
-    index: "02",
-    title: "超级间谍赛车",
+    icon: "🌱",
+    title: "浙江省新苗人才计划",
+    desc: "项目成功立项，获浙江省级大学生科研资助，面向创新型科研人才培养。",
   },
 ];
 
-export default function Home() {
+const awardColor: Record<string, string> = {
+  省一: "bg-yellow-400/10 text-yellow-300 border-yellow-400/30",
+  省二: "bg-sky-400/10 text-sky-300 border-sky-400/30",
+  省铜: "bg-amber-600/10 text-amber-400 border-amber-600/30",
+  省三: "bg-zinc-400/10 text-zinc-300 border-zinc-400/30",
+  国二: "bg-emerald-400/10 text-emerald-300 border-emerald-400/30",
+};
+
+function SectionLabel({ children }: { children: string }) {
   return (
-    <div className="flex flex-1 flex-col justify-center pb-20 pt-8 sm:pb-24 sm:pt-14">
-      <section className="relative overflow-hidden rounded-[40px] border border-white/10 bg-[rgba(7,12,28,0.7)] px-6 py-8 shadow-[0_40px_120px_-60px_rgba(0,0,0,0.95)] backdrop-blur-2xl sm:px-10 sm:py-12 lg:px-12 lg:py-14">
-        <div
-          aria-hidden
-          className="pointer-events-none absolute inset-0 bg-[linear-gradient(120deg,rgba(255,255,255,0.04),transparent_34%,transparent_66%,rgba(255,255,255,0.03))]"
-        />
-        <div
-          aria-hidden
-          className="pointer-events-none absolute inset-x-0 top-0 h-px bg-[linear-gradient(90deg,transparent,rgba(255,255,255,0.4),transparent)]"
-        />
+    <span className="text-xs font-medium uppercase tracking-[0.25em] text-white/30">
+      {children}
+    </span>
+  );
+}
 
-        <div className="relative grid gap-10 lg:grid-cols-[0.9fr_1.1fr] lg:items-end">
-          <div className="space-y-6">
-            <div className="inline-flex items-center gap-3 rounded-full border border-white/12 bg-white/6 px-4 py-2 text-[11px] font-medium uppercase tracking-[0.28em] text-[var(--accent-strong)]">
-              <span className="h-2 w-2 rounded-full bg-[var(--accent-strong)] shadow-[0_0_18px_rgba(125,231,255,0.9)]" />
-              Moonsilver
-            </div>
+function Divider() {
+  return (
+    <div className="mx-auto max-w-4xl px-6">
+      <div className="h-px bg-white/5" />
+    </div>
+  );
+}
 
-            <h1 className="max-w-3xl font-serif text-5xl leading-[0.94] tracking-[-0.06em] text-white sm:text-6xl lg:text-7xl">
-              欢迎来到 Moonsilver 的小家！
-            </h1>
-          </div>
+function Particle({ left, top, delay }: { left: string; top: string; delay: string }) {
+  return (
+    <span
+      className="absolute h-1 w-1 animate-pulse rounded-full bg-white/30"
+      style={{ left, top, animationDelay: delay, animationDuration: "3s" }}
+    />
+  );
+}
 
-          <div className="grid gap-4">
-            {destinations.map((item) => (
-              <Link
-                key={item.href}
-                href={item.href}
-                className="group relative overflow-hidden rounded-[30px] border border-white/10 bg-[rgba(10,18,38,0.84)] p-6 transition-all duration-300 hover:-translate-y-1 hover:border-white/20 hover:bg-[rgba(13,23,46,0.92)]"
-              >
-                <div
-                  aria-hidden
-                  className="pointer-events-none absolute inset-0 bg-gradient-to-br from-cyan-400/20 via-sky-400/10 to-transparent opacity-80 transition-opacity duration-300 group-hover:opacity-100"
-                />
-                <div
-                  aria-hidden
-                  className="pointer-events-none absolute right-[-2rem] top-[-2rem] h-24 w-24 rounded-full border border-white/10 bg-white/6 blur-xl"
-                />
+const particles = [
+  { left: "8%", top: "16%", delay: "0s" },
+  { left: "14%", top: "72%", delay: "0.2s" },
+  { left: "22%", top: "26%", delay: "0.4s" },
+  { left: "28%", top: "84%", delay: "0.6s" },
+  { left: "33%", top: "40%", delay: "0.8s" },
+  { left: "39%", top: "62%", delay: "1s" },
+  { left: "47%", top: "20%", delay: "1.2s" },
+  { left: "53%", top: "78%", delay: "1.4s" },
+  { left: "58%", top: "34%", delay: "1.6s" },
+  { left: "64%", top: "58%", delay: "1.8s" },
+  { left: "72%", top: "24%", delay: "2s" },
+  { left: "79%", top: "70%", delay: "2.2s" },
+  { left: "86%", top: "36%", delay: "2.4s" },
+  { left: "91%", top: "82%", delay: "2.6s" },
+];
 
-                <div className="relative flex h-full items-start justify-between gap-6">
-                  <div className="space-y-3">
-                    <p className="font-mono text-xs tracking-[0.28em] text-[var(--accent-strong)]">
-                      {item.index}
-                    </p>
-                    <h2 className="text-2xl font-semibold tracking-[-0.04em] text-white sm:text-3xl">
-                      {item.title}
-                    </h2>
-                  </div>
-                  <span className="rounded-full border border-white/12 bg-white/6 px-4 py-2 text-sm text-white transition-transform duration-300 group-hover:translate-x-1">
-                    Enter
-                  </span>
-                </div>
-              </Link>
-            ))}
-          </div>
+export default function HomePage() {
+  return (
+    <div className="bg-black text-white">
+      <section className="relative flex h-screen flex-col items-center justify-center overflow-hidden">
+        <div className="pointer-events-none absolute inset-0">
+          <div className="absolute left-1/2 top-1/2 h-[38rem] w-[38rem] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(circle,rgba(255,255,255,0.05)_0%,transparent_70%)]" />
+          <div className="absolute left-1/2 top-1/2 h-[56rem] w-[56rem] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(circle,rgba(255,255,255,0.02)_0%,transparent_70%)]" />
+          {particles.map((particle) => (
+            <Particle key={`${particle.left}-${particle.top}`} {...particle} />
+          ))}
+          {[...Array(6)].map((_, index) => (
+            <div
+              key={`v-${index}`}
+              className="absolute bottom-0 top-0 w-px bg-white/5"
+              style={{ left: `${(index + 1) * (100 / 7)}%` }}
+            />
+          ))}
+          {[...Array(4)].map((_, index) => (
+            <div
+              key={`h-${index}`}
+              className="absolute left-0 right-0 h-px bg-white/5"
+              style={{ top: `${(index + 1) * 20}%` }}
+            />
+          ))}
+        </div>
+
+        <div className="relative z-10 px-6 text-center">
+          <div className="mx-auto mb-10 h-px max-w-xs bg-white/20" />
+          <p className="mb-6 text-xs uppercase tracking-[0.3em] text-white/40">
+            杭州电子科技大学 · 2024级本科生
+          </p>
+          <h1 className="text-5xl font-bold tracking-tight md:text-8xl">你好，</h1>
+          <h1 className="mt-2 text-5xl font-bold tracking-tight text-white/50 md:text-8xl">
+            我是一个学生。
+          </h1>
+          <p className="mx-auto mt-8 max-w-md text-sm leading-relaxed text-white/50 md:text-base">
+            热爱竞赛与科研，持续探索技术的边界。
+          </p>
+          <div className="mt-14 text-lg text-white/20">↓</div>
         </div>
       </section>
+
+      <section className="mx-auto max-w-4xl px-6 py-24">
+        <SectionLabel>About</SectionLabel>
+        <h2 className="mt-4 mb-6 text-3xl font-semibold leading-tight md:text-4xl">
+          2024级 · 杭州电子科技大学
+        </h2>
+        <p className="max-w-2xl leading-relaxed text-white/50">
+          本科在读，专注于数学建模、人工智能与工程实践。在学业之余积极参与各类竞赛与科研项目，
+          致力于将理论与实际应用相结合。
+        </p>
+      </section>
+
+      <Divider />
+
+      <section className="mx-auto max-w-4xl px-6 py-24">
+        <SectionLabel>Honors</SectionLabel>
+        <h2 className="mt-4 mb-12 text-3xl font-semibold md:text-4xl">荣誉奖项</h2>
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          {awards.map((award) => (
+            <div
+              key={award.title}
+              className="flex items-center gap-4 rounded-xl border border-white/8 p-5 transition-colors hover:border-white/20"
+            >
+              <span className="text-2xl">{award.icon}</span>
+              <div>
+                <p className="text-sm font-medium text-white">{award.title}</p>
+                <p className="mt-0.5 text-xs text-white/35">{award.sub}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <Divider />
+
+      <section className="mx-auto max-w-4xl px-6 py-24">
+        <SectionLabel>Competitions</SectionLabel>
+        <h2 className="mt-4 mb-12 text-3xl font-semibold md:text-4xl">竞赛成绩</h2>
+        <div className="space-y-3">
+          {contests.map((contest, index) => (
+            <div key={contest.name} className="group flex items-center justify-between border-b border-white/8 pb-4">
+              <div className="flex items-center gap-4">
+                <span className="w-5 select-none text-xs text-white/20">
+                  {String(index + 1).padStart(2, "0")}
+                </span>
+                <span className="text-sm text-white/80 transition-colors group-hover:text-white">
+                  {contest.name}
+                </span>
+              </div>
+              <span
+                className={`ml-4 shrink-0 rounded-full border px-2.5 py-0.5 text-xs font-medium ${
+                  awardColor[contest.award] ?? "border-white/10 bg-white/5 text-white/40"
+                }`}
+              >
+                {contest.award}
+              </span>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <Divider />
+
+      <section className="mx-auto max-w-4xl px-6 py-24">
+        <SectionLabel>Research</SectionLabel>
+        <h2 className="mt-4 mb-12 text-3xl font-semibold md:text-4xl">科研经历</h2>
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+          {research.map((item) => (
+            <div
+              key={item.title}
+              className="h-full rounded-2xl border border-white/8 p-7 transition-all hover:border-white/20 hover:bg-white/[0.02]"
+            >
+              <span className="mb-4 block text-3xl">{item.icon}</span>
+              <h3 className="mb-2 font-semibold text-white">{item.title}</h3>
+              <p className="text-sm leading-relaxed text-white/40">{item.desc}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <footer className="mt-8 border-t border-white/5 py-10 text-center">
+        <p className="text-xs tracking-widest text-white/20">
+          © {new Date().getFullYear()} · 杭州电子科技大学
+        </p>
+      </footer>
     </div>
   );
 }
