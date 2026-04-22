@@ -35,8 +35,14 @@ export default function Home() {
 
           <div className="flex flex-wrap gap-3 pt-2">
             <Link
-              href="/writing"
+              href="/jobti"
               className="inline-flex items-center rounded-full bg-[var(--foreground)] px-5 py-3 text-sm font-medium text-white transition-transform hover:-translate-y-0.5"
+            >
+              进入 Jobti
+            </Link>
+            <Link
+              href="/writing"
+              className="inline-flex items-center rounded-full border border-[var(--line-strong)] bg-[var(--surface-strong)] px-5 py-3 text-sm font-medium text-[var(--foreground)] transition-colors hover:border-[var(--accent)]"
             >
               进入写作
             </Link>
