@@ -235,17 +235,6 @@ export function JobtiClient() {
               })}
             </div>
 
-            <div className="mt-8 grid gap-4 md:grid-cols-2">
-              <div className="rounded-2xl border border-white/8 p-5">
-                <p className="text-xs uppercase tracking-[0.2em] text-white/30">Recommended Scale</p>
-                <p className="mt-3 text-sm leading-relaxed text-white/40">{currentQuestion.recommended_scale}</p>
-              </div>
-              <div className="rounded-2xl border border-white/8 p-5">
-                <p className="text-xs uppercase tracking-[0.2em] text-white/30">Scoring Rule</p>
-                <p className="mt-3 text-sm leading-relaxed text-white/40">{currentQuestion.scoring_rule}</p>
-              </div>
-            </div>
-
             <div className="mt-10 flex flex-wrap gap-3">
               <button
                 type="button"
