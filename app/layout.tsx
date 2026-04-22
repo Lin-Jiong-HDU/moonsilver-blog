@@ -9,7 +9,7 @@ export const metadata: Metadata = {
     template: "%s | Moonsilver 的小家",
   },
   description: "Moonsilver 的小家。",
-  keywords: ["Moonsilver", "Jobti", "职业测评", "NES", "超级间谍赛车"],
+  keywords: ["Moonsilver", "Jobti", "职业测绘", "NES", "超级间谍赛车"],
   openGraph: {
     title: "Moonsilver 的小家",
     description: "Moonsilver 的小家。",
@@ -73,16 +73,10 @@ export default function RootLayout({
                   <p className="font-medium text-white">Moonsilver 的小家</p>
                 </div>
                 <div className="flex flex-wrap gap-4">
-                  <Link
-                    href="/jobti"
-                    className="transition-colors hover:text-white"
-                  >
+                  <Link href="/jobti" className="transition-colors hover:text-white">
                     Jobti
                   </Link>
-                  <Link
-                    href="/super-spy-racer"
-                    className="transition-colors hover:text-white"
-                  >
+                  <Link href="/super-spy-racer" className="transition-colors hover:text-white">
                     超级间谍赛车
                   </Link>
                 </div>

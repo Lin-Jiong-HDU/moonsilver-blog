@@ -1,258 +1,199 @@
 import {
-  CAREERS,
-  createEmptyScores,
-  DIMENSIONS,
-  QUESTIONS,
-  type Career,
-  type DimensionId,
-  type WeightedScores,
+  careerTypes,
+  getAbilityById,
+  getCareerTypeByCode,
+  jobTypeRankByKey,
+  normalizedJobs,
+  normalizedQuestions,
+  type CareerType,
+  type DimensionCode,
+  type NormalizedJob,
+  type NormalizedQuestion,
 } from "@/app/jobti/jobti-data";
 
-type ProfileDescriptor = {
-  label: string;
-  summary: string;
-  workStyle: string;
+export type DimensionResult = {
+  dimension: DimensionCode;
+  leftLetter: string;
+  rightLetter: string;
+  leftName: string;
+  rightName: string;
+  leftScore: number;
+  rightScore: number;
+  normalized: number;
+  pickedLetter: string;
 };
 
-export type CareerMatch = {
-  career: Career;
-  score: number;
-  reason: string;
+export type JobMatch = {
+  job: NormalizedJob;
+  fitScore: number;
+  distance: number;
+  codeBonus: number;
+  rankBonus: number;
 };
 
-export type AssessmentResult = {
-  rawScores: WeightedScores;
-  ratios: WeightedScores;
-  normalizedScores: WeightedScores;
-  topDimensions: DimensionId[];
-  bottomDimensions: DimensionId[];
-  profile: ProfileDescriptor;
-  matches: CareerMatch[];
+export type JobtiResult = {
+  typeCode: string;
+  careerType: CareerType;
+  dimensions: DimensionResult[];
+  jobs: JobMatch[];
+  topAbilities: Array<{ id: string; name: string; count: number }>;
 };
-
-const PROFILE_MAP: Array<{
-  keys: [DimensionId, DimensionId];
-  profile: ProfileDescriptor;
-}> = [
-  {
-    keys: ["analysis", "systems"],
-    profile: {
-      label: "结构洞察型",
-      summary: "你偏向先把问题看清、搭起结构，再决定怎样行动。",
-      workStyle: "适合复杂度高、需要长期机制和判断质量的工作环境。",
-    },
-  },
-  {
-    keys: ["execution", "influence"],
-    profile: {
-      label: "推进掌舵型",
-      summary: "你更容易在节奏、协调和落地结果上建立价值。",
-      workStyle: "适合目标明确、推进链路长、需要多方协作的工作环境。",
-    },
-  },
-  {
-    keys: ["people", "influence"],
-    profile: {
-      label: "连接驱动型",
-      summary: "你通过理解人、连接人和推动共识来创造结果。",
-      workStyle: "适合高沟通密度、人与人适配度很关键的角色。",
-    },
-  },
-  {
-    keys: ["creativity", "craft"],
-    profile: {
-      label: "表达打磨型",
-      summary: "你不仅重视创意，更在意最后呈现出来的质感与辨识度。",
-      workStyle: "适合对成品体验要求高、允许持续打磨的岗位。",
-    },
-  },
-  {
-    keys: ["systems", "execution"],
-    profile: {
-      label: "搭建落地型",
-      summary: "你擅长把抽象想法搭成可执行路径，并持续推进到落地。",
-      workStyle: "适合既要框架能力、又要交付结果的复合型岗位。",
-    },
-  },
-  {
-    keys: ["creativity", "adaptability"],
-    profile: {
-      label: "探索开路型",
-      summary: "你在陌生环境里会更快打开思路，用新解法找到突破口。",
-      workStyle: "适合变化快、需要不断试验和寻找增量机会的团队。",
-    },
-  },
-  {
-    keys: ["analysis", "craft"],
-    profile: {
-      label: "精确工匠型",
-      summary: "你在判断准确度和成品质量上都有比较高的要求。",
-      workStyle: "适合标准高、细节密度高、错误成本较高的岗位。",
-    },
-  },
-  {
-    keys: ["people", "creativity"],
-    profile: {
-      label: "共感表达型",
-      summary: "你更容易把人的感受转成有感染力的方案和表达。",
-      workStyle: "适合内容、品牌、体验设计等以感知为核心的角色。",
-    },
-  },
-];
-
-const DIMENSION_IDS = DIMENSIONS.map((dimension) => dimension.id);
-
-function getMaxPossibleScores() {
-  const maxScores = createEmptyScores();
-
-  for (const question of QUESTIONS) {
-    for (const dimensionId of DIMENSION_IDS) {
-      const bestForDimension = question.options.reduce((best, option) => {
-        return Math.max(best, option.weights[dimensionId] ?? 0);
-      }, 0);
-
-      maxScores[dimensionId] += bestForDimension;
-    }
-  }
-
-  return maxScores;
-}
-
-const MAX_POSSIBLE_SCORES = getMaxPossibleScores();
 
 function clamp(value: number, min: number, max: number) {
   return Math.min(max, Math.max(min, value));
 }
 
-function deriveProfile(topDimensions: DimensionId[]): ProfileDescriptor {
-  const topTwo = topDimensions.slice(0, 2);
-  const matched = PROFILE_MAP.find(({ keys }) =>
-    keys.every((key) => topTwo.includes(key)),
-  );
-
-  if (matched) {
-    return matched.profile;
-  }
-
-  return {
-    label: "复合成长型",
-    summary: "你的优势并不只集中在一个方向，而是带有明显的混合型特征。",
-    workStyle: "更适合允许你跨问题、跨角色发挥的成长型环境。",
-  };
+function getAnswer(answers: Array<number | null>, index: number) {
+  const value = answers[index];
+  return typeof value === "number" && value >= 1 && value <= 5 ? value : null;
 }
 
-function getCareerReason(career: Career, topDimensions: DimensionId[]) {
-  const matchedDimensions = topDimensions
-    .filter((dimensionId) => career.weights[dimensionId] >= 7)
-    .slice(0, 2)
-    .map((dimensionId) => {
-      const dimension = DIMENSIONS.find((item) => item.id === dimensionId);
-      return dimension?.label ?? dimensionId;
-    });
+function scoreDimension(
+  dimension: DimensionCode,
+  leftLetter: string,
+  rightLetter: string,
+  leftName: string,
+  rightName: string,
+  questions: NormalizedQuestion[],
+  answers: Array<number | null>,
+) {
+  let leftRaw = 0;
+  let rightRaw = 0;
+  let answered = 0;
 
-  if (matchedDimensions.length === 0) {
-    return "你的整体偏好和这类岗位的工作节奏仍有一定重合。";
-  }
-
-  return `你的 ${matchedDimensions.join(" / ")} 更贴近这类岗位的核心要求。`;
-}
-
-export function calculateAssessment(answers: number[]): AssessmentResult {
-  const rawScores = createEmptyScores();
-
-  QUESTIONS.forEach((question, index) => {
-    const optionIndex = answers[index];
-    const selectedOption = question.options[optionIndex];
-
-    if (!selectedOption) {
+  questions.forEach((question) => {
+    const value = getAnswer(answers, question.index);
+    if (value === null) {
       return;
     }
 
-    for (const dimensionId of DIMENSION_IDS) {
-      rawScores[dimensionId] += selectedOption.weights[dimensionId] ?? 0;
-    }
+    leftRaw += 6 - value;
+    rightRaw += value;
+    answered += 1;
   });
 
-  const ratios = createEmptyScores();
-  const normalizedScores = createEmptyScores();
-
-  const ratioValues = DIMENSION_IDS.map((dimensionId) => {
-    const maxScore = MAX_POSSIBLE_SCORES[dimensionId];
-    const ratio = maxScore === 0 ? 0 : rawScores[dimensionId] / maxScore;
-    ratios[dimensionId] = ratio;
-    return ratio;
-  });
-
-  const minRatio = Math.min(...ratioValues);
-  const maxRatio = Math.max(...ratioValues);
-  const spread = maxRatio - minRatio || 1;
-
-  for (const dimensionId of DIMENSION_IDS) {
-    const normalized =
-      38 + ((ratios[dimensionId] - minRatio) / spread) * 48 + ratios[dimensionId] * 8;
-    normalizedScores[dimensionId] = Math.round(clamp(normalized, 28, 96));
-  }
-
-  const rankedDimensions = [...DIMENSION_IDS].sort(
-    (left, right) => normalizedScores[right] - normalizedScores[left],
-  );
-
-  const topDimensions = rankedDimensions.slice(0, 3);
-  const bottomDimensions = rankedDimensions.slice(-3).reverse();
-  const profile = deriveProfile(topDimensions);
-
-  const matches = CAREERS.map((career) => {
-    let overlapScore = 0;
-    let targetTotal = 0;
-    let distance = 0;
-    let weightedTotal = 0;
-    let penalty = 0;
-
-    const careerTopDimensions = [...DIMENSION_IDS]
-      .sort((left, right) => career.weights[right] - career.weights[left])
-      .slice(0, 4);
-
-    for (const dimensionId of DIMENSION_IDS) {
-      const target = career.weights[dimensionId] / 10;
-      const user = ratios[dimensionId];
-      const weight = career.weights[dimensionId];
-
-      overlapScore += Math.min(user, target) * weight;
-      targetTotal += target * weight;
-      distance += Math.abs(user - target) * weight;
-      weightedTotal += weight;
-
-      if (weight >= 8 && user < target - 0.12) {
-        penalty += (target - user) * 10;
-      }
-    }
-
-    const coverage = targetTotal === 0 ? 0 : overlapScore / targetTotal;
-    const closeness =
-      weightedTotal === 0 ? 0 : 1 - distance / weightedTotal;
-    const topHit =
-      topDimensions.filter((dimensionId) =>
-        careerTopDimensions.includes(dimensionId),
-      ).length / topDimensions.length;
-
-    const score = Math.round(
-      clamp(24 + coverage * 42 + closeness * 20 + topHit * 14 - penalty, 18, 96),
-    );
-
-    return {
-      career,
-      score,
-      reason: getCareerReason(career, topDimensions),
-    };
-  }).sort((left, right) => right.score - left.score);
+  const leftScore = answered === 0 ? 50 : Math.round(((leftRaw - answered) / (4 * answered)) * 100);
+  const rightScore = answered === 0 ? 50 : Math.round(((rightRaw - answered) / (4 * answered)) * 100);
+  const normalized = clamp(leftScore, 0, 100);
 
   return {
-    rawScores,
-    ratios,
-    normalizedScores,
-    topDimensions,
-    bottomDimensions,
-    profile,
-    matches,
+    dimension,
+    leftLetter,
+    rightLetter,
+    leftName,
+    rightName,
+    leftScore: clamp(leftScore, 0, 100),
+    rightScore: clamp(rightScore, 0, 100),
+    normalized,
+    pickedLetter: normalized >= 50 ? leftLetter : rightLetter,
   };
+}
+
+function getDimensionMeta(dimension: DimensionCode) {
+  const questions = normalizedQuestions.filter((question) => question.dimension === dimension);
+
+  if (dimension === "AR") {
+    return {
+      questions,
+      left: { letter: "A", name: "创意表达" },
+      right: { letter: "R", name: "规则构建" },
+    };
+  }
+
+  if (dimension === "PD") {
+    return {
+      questions,
+      left: { letter: "P", name: "人群协同" },
+      right: { letter: "D", name: "数据驱动" },
+    };
+  }
+
+  if (dimension === "XS") {
+    return {
+      questions,
+      left: { letter: "X", name: "探索开拓" },
+      right: { letter: "S", name: "稳定落地" },
+    };
+  }
+
+  return {
+    questions,
+    left: { letter: "L", name: "统筹主导" },
+    right: { letter: "M", name: "专精深耕" },
+  };
+}
+
+function getFallbackCareerType() {
+  return careerTypes[0];
+}
+
+export function calculateJobtiResult(answers: Array<number | null>): JobtiResult {
+  const dimensions = (["AR", "PD", "XS", "LM"] as const).map((dimension) => {
+    const { questions, left, right } = getDimensionMeta(dimension);
+
+    return scoreDimension(dimension, left.letter, right.letter, left.name, right.name, questions, answers);
+  });
+
+  const typeCode = dimensions.map((dimension) => dimension.pickedLetter).join("");
+  const careerType = getCareerTypeByCode(typeCode) ?? getFallbackCareerType();
+
+  const userVector = {
+    AR: dimensions[0]?.normalized ?? 50,
+    PD: dimensions[1]?.normalized ?? 50,
+    XS: dimensions[2]?.normalized ?? 50,
+    LM: dimensions[3]?.normalized ?? 50,
+  };
+
+  const jobs = normalizedJobs
+    .map((job) => {
+      const distance =
+        Math.abs(userVector.AR - job.AR_score) +
+        Math.abs(userVector.PD - job.PD_score) +
+        Math.abs(userVector.XS - job.XS_score) +
+        Math.abs(userVector.LM - job.LM_score);
+
+      const codeBonus = job.primary_code === typeCode ? 22 : job.altCodesList.includes(typeCode) ? 12 : 0;
+      const rank = jobTypeRankByKey.get(`${job.job_id}:${typeCode}`) ?? 0;
+      const rankBonus = rank > 0 ? Math.max(0, 12 - rank * 2) : 0;
+      const fitScore = clamp(Math.round(100 - distance / 4 + codeBonus + rankBonus), 0, 100);
+
+      return {
+        job,
+        fitScore,
+        distance,
+        codeBonus,
+        rankBonus,
+      };
+    })
+    .sort((left, right) => right.fitScore - left.fitScore)
+    .slice(0, 10);
+
+  const abilityCounts = new Map<string, number>();
+
+  jobs.forEach(({ job }) => {
+    job.coreAbilityIds.forEach((abilityId) => {
+      abilityCounts.set(abilityId, (abilityCounts.get(abilityId) ?? 0) + 1);
+    });
+  });
+
+  const topAbilities = [...abilityCounts.entries()]
+    .map(([abilityId, count]) => ({
+      id: abilityId,
+      name: getAbilityById(abilityId)?.ability_name ?? abilityId,
+      count,
+    }))
+    .sort((left, right) => right.count - left.count || left.name.localeCompare(right.name))
+    .slice(0, 8);
+
+  return {
+    typeCode,
+    careerType,
+    dimensions,
+    jobs,
+    topAbilities,
+  };
+}
+
+export function createEmptyAnswers() {
+  return Array.from({ length: 80 }, () => null as number | null);
 }
