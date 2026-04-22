@@ -12,42 +12,42 @@ const leagues: Array<{
   tableUrl: string;
   scorerUrl: string;
 }> = [
-  {
-    code: "PL",
-    name: "英超",
-    season: "2025-2026",
-    tableUrl: "https://saishi.zgzcw.com/soccer/league/82/2025-2026/sxds",
-    scorerUrl: "https://saishi.zgzcw.com/soccer/league/36/2025-2026/ssb",
-  },
-  {
-    code: "PD",
-    name: "西甲",
-    season: "2025-2026",
-    tableUrl: "https://saishi.zgzcw.com/soccer/league/31/2025-2026/sxds",
-    scorerUrl: "https://saishi.zgzcw.com/soccer/league/31/2025-2026/ssb",
-  },
-  {
-    code: "BL1",
-    name: "德甲",
-    season: "2025-2026",
-    tableUrl: "https://saishi.zgzcw.com/soccer/league/8/2025-2026/sxds",
-    scorerUrl: "https://saishi.zgzcw.com/soccer/league/8/2025-2026/ssb",
-  },
-  {
-    code: "SA",
-    name: "意甲",
-    season: "2025-2026",
-    tableUrl: "https://saishi.zgzcw.com/soccer/league/34/2025-2026/sxds",
-    scorerUrl: "https://saishi.zgzcw.com/soccer/league/34/2025-2026/ssb",
-  },
-  {
-    code: "FL1",
-    name: "法甲",
-    season: "2025-2026",
-    tableUrl: "https://saishi.zgzcw.com/soccer/league/11/2025-2026/sxds",
-    scorerUrl: "https://saishi.zgzcw.com/soccer/league/11/2025-2026/ssb",
-  },
-];
+    {
+      code: "PL",
+      name: "英超",
+      season: "2025-2026",
+      tableUrl: "https://saishi.zgzcw.com/soccer/league/82/2025-2026/sxds",
+      scorerUrl: "https://saishi.zgzcw.com/soccer/league/36/2025-2026/ssb",
+    },
+    {
+      code: "PD",
+      name: "西甲",
+      season: "2025-2026",
+      tableUrl: "https://saishi.zgzcw.com/soccer/league/31/2025-2026/sxds",
+      scorerUrl: "https://saishi.zgzcw.com/soccer/league/31/2025-2026/ssb",
+    },
+    {
+      code: "BL1",
+      name: "德甲",
+      season: "2025-2026",
+      tableUrl: "https://saishi.zgzcw.com/soccer/league/8/2025-2026/sxds",
+      scorerUrl: "https://saishi.zgzcw.com/soccer/league/8/2025-2026/ssb",
+    },
+    {
+      code: "SA",
+      name: "意甲",
+      season: "2025-2026",
+      tableUrl: "https://saishi.zgzcw.com/soccer/league/34/2025-2026/sxds",
+      scorerUrl: "https://saishi.zgzcw.com/soccer/league/34/2025-2026/ssb",
+    },
+    {
+      code: "FL1",
+      name: "法甲",
+      season: "2025-2026",
+      tableUrl: "https://saishi.zgzcw.com/soccer/league/11/2025-2026/sxds",
+      scorerUrl: "https://saishi.zgzcw.com/soccer/league/11/2025-2026/ssb",
+    },
+  ];
 
 function SectionLabel({ children }: { children: string }) {
   return (
@@ -86,8 +86,7 @@ export function FootballWidgetPage() {
             足球数据
           </h1>
           <p className="mt-4 text-sm leading-relaxed text-white/45 md:text-base">
-            这个页面把赛程、积分榜和射手榜直接嵌入到网站里。
-            不再是跳出站外的链接页，而是保留在当前页面中切换查看。
+            和moonsilver一起看球（我还没做这个功能）
           </p>
         </div>
 
@@ -107,11 +106,10 @@ export function FootballWidgetPage() {
                         key={league.code}
                         type="button"
                         onClick={() => setActiveLeagueCode(league.code)}
-                        className={`w-full rounded-2xl border px-4 py-3 text-left transition-colors ${
-                          active
-                            ? "border-white/25 bg-white/[0.08] text-white"
-                            : "border-white/8 text-white/45 hover:border-white/20 hover:text-white"
-                        }`}
+                        className={`w-full rounded-2xl border px-4 py-3 text-left transition-colors ${active
+                          ? "border-white/25 bg-white/[0.08] text-white"
+                          : "border-white/8 text-white/45 hover:border-white/20 hover:text-white"
+                          }`}
                       >
                         <p className="text-sm font-medium">{league.name}</p>
                         <p className="mt-1 text-xs uppercase tracking-[0.18em] text-white/30">
@@ -131,11 +129,10 @@ export function FootballWidgetPage() {
                   <button
                     type="button"
                     onClick={() => setActiveView("table")}
-                    className={`rounded-2xl border px-4 py-3 text-left transition-colors ${
-                      activeView === "table"
-                        ? "border-white/25 bg-white/[0.08] text-white"
-                        : "border-white/8 text-white/45 hover:border-white/20 hover:text-white"
-                    }`}
+                    className={`rounded-2xl border px-4 py-3 text-left transition-colors ${activeView === "table"
+                      ? "border-white/25 bg-white/[0.08] text-white"
+                      : "border-white/8 text-white/45 hover:border-white/20 hover:text-white"
+                      }`}
                   >
                     <p className="text-sm font-medium">赛程 / 积分榜</p>
                     <p className="mt-1 text-xs uppercase tracking-[0.18em] text-white/30">
@@ -145,11 +142,10 @@ export function FootballWidgetPage() {
                   <button
                     type="button"
                     onClick={() => setActiveView("scorer")}
-                    className={`rounded-2xl border px-4 py-3 text-left transition-colors ${
-                      activeView === "scorer"
-                        ? "border-white/25 bg-white/[0.08] text-white"
-                        : "border-white/8 text-white/45 hover:border-white/20 hover:text-white"
-                    }`}
+                    className={`rounded-2xl border px-4 py-3 text-left transition-colors ${activeView === "scorer"
+                      ? "border-white/25 bg-white/[0.08] text-white"
+                      : "border-white/8 text-white/45 hover:border-white/20 hover:text-white"
+                      }`}
                   >
                     <p className="text-sm font-medium">射手榜</p>
                     <p className="mt-1 text-xs uppercase tracking-[0.18em] text-white/30">
