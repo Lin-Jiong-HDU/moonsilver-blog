@@ -3,7 +3,7 @@ import { JobtiClient } from "@/app/jobti/jobti-client";
 
 export const metadata: Metadata = {
   title: "Jobti",
-  description: "放在娱乐区里的职业测绘小游戏。",
+  description: "基于内置题库生成结果的职业测评页面。",
 };
 
 export default function JobtiPage() {

@@ -1,21 +1,21 @@
 # Portfolio
 
 这是一个基于 `Next.js App Router` 的个人网站。
-当前站点主要包含首页、娱乐页、竞赛专区、足球页和 Jobti 职业测评模块。
+当前站点主要包含首页、娱乐页、竞赛专区、足球数据页和 Jobti 职业测评模块。
 
 ## 当前路由
 
 - `/` 首页
 - `/fun` 娱乐页
 - `/contest` 竞赛专区
-- `/football` 足球页
+- `/football` 足球数据页
 - `/jobti` Jobti 职业测评
 
 ## 站点概览
 
 - 首页保留黑底极简风格和首屏动效。
 - `/fun` 是娱乐入口，里面放了 `Jobti` 和足球两个卡片。
-- `/football` 现在嵌入 `ScoreBat` 的官方 widget，可查看比分、积分榜和集锦。
+- `/football` 改为国内更稳的轻量入口，提供五大联赛的赛程、积分榜和射手榜直达链接。
 - `/jobti` 是独立重写的职业测评模块，直接读取 `app/jobti/career_game_data.json`。
 - `website/` 目录保留为视觉和内容基准，后续调整页面时可以先对照它。
 
@@ -35,7 +35,7 @@ pnpm lint
 - [app/page.tsx](app/page.tsx) 首页
 - [app/fun/page.tsx](app/fun/page.tsx) 娱乐页
 - [app/contest/page.tsx](app/contest/page.tsx) 竞赛专区
-- [app/football/football-widget-page.tsx](app/football/football-widget-page.tsx) 足球 widget 页面壳
+- [app/football/football-widget-page.tsx](app/football/football-widget-page.tsx) 足球数据入口页
 - [app/football/page.tsx](app/football/page.tsx) 足球页入口
 - [app/jobti/page.tsx](app/jobti/page.tsx) Jobti 页面入口
 - [app/jobti/jobti-client.tsx](app/jobti/jobti-client.tsx) Jobti 页面 UI
@@ -56,11 +56,11 @@ pnpm lint
 
 ## 足球页
 
-足球页现在使用 `ScoreBat` 的官方 widget：
+足球页现在使用国内更稳的轻量入口：
 
-- `livescore` 用来看实时比分和赛程
-- `standings` 用来看积分榜
-- `videos` 用来看比赛集锦
+- 英超、西甲、德甲、意甲、法甲都提供赛程 / 积分榜直达
+- 每个联赛也提供射手榜直达
+- 如果要看国内赛事，可以直接进中国足协数据中心
 
 当前实现不依赖项目内 API，也不需要额外配置密钥。
 

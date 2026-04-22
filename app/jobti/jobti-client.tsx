@@ -112,7 +112,9 @@ export function JobtiClient() {
             <div className="rounded-2xl border border-white/8 bg-white/[0.02] p-6">
               <p className="text-xs uppercase tracking-[0.2em] text-white/30">System</p>
               <p className="mt-4 text-3xl font-semibold text-white">V16</p>
-              <p className="mt-2 text-sm leading-relaxed text-white/40">使用你放进来的整套 JSON 数据。</p>
+              <p className="mt-2 text-sm leading-relaxed text-white/40">
+                当前模块直接读取整套 JSON 数据，内容完整且可独立运行。
+              </p>
             </div>
           </div>
 
