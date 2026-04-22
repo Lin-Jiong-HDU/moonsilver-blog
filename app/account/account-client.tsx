@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { useAuth } from "@/app/components/auth-provider";
 
 export function AccountClient() {
@@ -11,11 +11,9 @@ export function AccountClient() {
   const [message, setMessage] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-
   async function handleSubmit() {
     setIsSubmitting(true);
     const success = await login(username, password);
-
     setMessage(success ? "登录成功。" : "账号或密码不正确。");
     setIsSubmitting(false);
   }
@@ -93,7 +91,6 @@ export function AccountClient() {
                 <p>• 体验账号由站点统一发放。</p>
                 <p>• 账号信息保存在站点服务器，不只在本地浏览器里。</p>
                 <p>• 管理员账号用于博客编辑。</p>
-                <p>{adminHint}</p>
               </div>
             </div>
 

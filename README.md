@@ -26,7 +26,7 @@
 - 普通用户通过 `/account` 登录体验账号。
 - 账号列表保存在 `data/accounts.json`，你可以直接在这里增删发放账号。
 - 登录后可以查看 `/contest`。
-- 只有管理员账号 `moonsilver / msv` 可以编辑 `/blog`。
+- 只有管理员账号可以编辑 `/blog`，管理员凭据保存在 `data/accounts.json`。
 
 ## 博客共享方式
 
