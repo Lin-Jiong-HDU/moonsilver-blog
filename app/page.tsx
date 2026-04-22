@@ -27,6 +27,23 @@ const research = [
   },
 ];
 
+const particles = [
+  { left: "7%", top: "18%", delay: "0s", duration: "3.2s" },
+  { left: "13%", top: "72%", delay: "0.3s", duration: "4s" },
+  { left: "21%", top: "28%", delay: "0.6s", duration: "3.5s" },
+  { left: "27%", top: "84%", delay: "0.9s", duration: "4.2s" },
+  { left: "34%", top: "42%", delay: "1.2s", duration: "3.8s" },
+  { left: "39%", top: "64%", delay: "1.5s", duration: "4.4s" },
+  { left: "46%", top: "20%", delay: "1.8s", duration: "3.6s" },
+  { left: "52%", top: "79%", delay: "2.1s", duration: "4.1s" },
+  { left: "59%", top: "35%", delay: "2.4s", duration: "3.9s" },
+  { left: "65%", top: "58%", delay: "2.7s", duration: "4.3s" },
+  { left: "72%", top: "24%", delay: "3s", duration: "3.4s" },
+  { left: "78%", top: "69%", delay: "3.3s", duration: "4.1s" },
+  { left: "85%", top: "37%", delay: "3.6s", duration: "3.7s" },
+  { left: "91%", top: "82%", delay: "3.9s", duration: "4.5s" },
+];
+
 const awardColor: Record<string, string> = {
   省一: "bg-yellow-400/10 text-yellow-300 border-yellow-400/30",
   省二: "bg-sky-400/10 text-sky-300 border-sky-400/30",
@@ -51,71 +68,94 @@ function Divider() {
   );
 }
 
-function Particle({ left, top, delay }: { left: string; top: string; delay: string }) {
-  return (
-    <span
-      className="absolute h-1 w-1 animate-pulse rounded-full bg-white/30"
-      style={{ left, top, animationDelay: delay, animationDuration: "3s" }}
-    />
-  );
-}
-
-const particles = [
-  { left: "8%", top: "16%", delay: "0s" },
-  { left: "14%", top: "72%", delay: "0.2s" },
-  { left: "22%", top: "26%", delay: "0.4s" },
-  { left: "28%", top: "84%", delay: "0.6s" },
-  { left: "33%", top: "40%", delay: "0.8s" },
-  { left: "39%", top: "62%", delay: "1s" },
-  { left: "47%", top: "20%", delay: "1.2s" },
-  { left: "53%", top: "78%", delay: "1.4s" },
-  { left: "58%", top: "34%", delay: "1.6s" },
-  { left: "64%", top: "58%", delay: "1.8s" },
-  { left: "72%", top: "24%", delay: "2s" },
-  { left: "79%", top: "70%", delay: "2.2s" },
-  { left: "86%", top: "36%", delay: "2.4s" },
-  { left: "91%", top: "82%", delay: "2.6s" },
-];
-
 export default function HomePage() {
   return (
     <div className="bg-black text-white">
       <section className="relative flex h-screen flex-col items-center justify-center overflow-hidden">
-        <div className="pointer-events-none absolute inset-0">
-          <div className="absolute left-1/2 top-1/2 h-[38rem] w-[38rem] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(circle,rgba(255,255,255,0.05)_0%,transparent_70%)]" />
-          <div className="absolute left-1/2 top-1/2 h-[56rem] w-[56rem] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(circle,rgba(255,255,255,0.02)_0%,transparent_70%)]" />
+        <div className="pointer-events-none absolute inset-0 overflow-hidden">
+          <div className="home-orb-primary absolute left-1/2 top-1/2 h-[38rem] w-[38rem] rounded-full bg-[radial-gradient(circle,rgba(255,255,255,0.05)_0%,transparent_70%)]" />
+          <div className="home-orb-secondary absolute left-1/2 top-1/2 h-[58rem] w-[58rem] rounded-full bg-[radial-gradient(circle,rgba(255,255,255,0.02)_0%,transparent_70%)]" />
+
           {particles.map((particle) => (
-            <Particle key={`${particle.left}-${particle.top}`} {...particle} />
+            <span
+              key={`${particle.left}-${particle.top}`}
+              className="home-particle absolute h-1 w-1 rounded-full bg-white/30"
+              style={{
+                left: particle.left,
+                top: particle.top,
+                animationDelay: particle.delay,
+                animationDuration: particle.duration,
+              }}
+            />
           ))}
+
           {[...Array(6)].map((_, index) => (
             <div
               key={`v-${index}`}
-              className="absolute bottom-0 top-0 w-px bg-white/5"
-              style={{ left: `${(index + 1) * (100 / 7)}%` }}
+              className="absolute bottom-0 top-0 w-px origin-top bg-white/5 home-fade-up"
+              style={{
+                left: `${(index + 1) * (100 / 7)}%`,
+                animationDelay: `${0.3 + index * 0.08}s`,
+              }}
             />
           ))}
+
           {[...Array(4)].map((_, index) => (
             <div
               key={`h-${index}`}
-              className="absolute left-0 right-0 h-px bg-white/5"
-              style={{ top: `${(index + 1) * 20}%` }}
+              className="absolute left-0 right-0 h-px bg-white/5 home-fade-up"
+              style={{
+                top: `${(index + 1) * 20}%`,
+                animationDelay: `${0.45 + index * 0.1}s`,
+              }}
             />
           ))}
         </div>
 
         <div className="relative z-10 px-6 text-center">
-          <div className="mx-auto mb-10 h-px max-w-xs bg-white/20" />
-          <p className="mb-6 text-xs uppercase tracking-[0.3em] text-white/40">
+          <div
+            className="home-fade-up mx-auto mb-10 h-px max-w-xs bg-white/20"
+            style={{ animationDelay: "0.2s" }}
+          />
+
+          <p
+            className="home-fade-up mb-6 text-xs uppercase tracking-[0.3em] text-white/40"
+            style={{ animationDelay: "0.45s" }}
+          >
             杭州电子科技大学 · 2024级本科生
           </p>
-          <h1 className="text-5xl font-bold tracking-tight md:text-8xl">你好，</h1>
-          <h1 className="mt-2 text-5xl font-bold tracking-tight text-white/50 md:text-8xl">
-            我是一个学生。
-          </h1>
-          <p className="mx-auto mt-8 max-w-md text-sm leading-relaxed text-white/50 md:text-base">
+
+          <div className="overflow-hidden">
+            <h1
+              className="home-reveal text-5xl font-bold tracking-tight md:text-8xl"
+              style={{ animationDelay: "0.65s" }}
+            >
+              你好，
+            </h1>
+          </div>
+
+          <div className="mt-2 overflow-hidden">
+            <h1
+              className="home-reveal text-5xl font-bold tracking-tight text-white/50 md:text-8xl"
+              style={{ animationDelay: "0.82s" }}
+            >
+              我是一个学生。
+            </h1>
+          </div>
+
+          <p
+            className="home-fade-up mx-auto mt-8 max-w-md text-sm leading-relaxed text-white/50 md:text-base"
+            style={{ animationDelay: "1.15s" }}
+          >
             热爱竞赛与科研，持续探索技术的边界。
           </p>
-          <div className="mt-14 text-lg text-white/20">↓</div>
+
+          <div
+            className="home-fade-up mt-14"
+            style={{ animationDelay: "1.55s" }}
+          >
+            <div className="home-arrow text-lg text-white/20">↓</div>
+          </div>
         </div>
       </section>
 
@@ -158,7 +198,10 @@ export default function HomePage() {
         <h2 className="mt-4 mb-12 text-3xl font-semibold md:text-4xl">竞赛成绩</h2>
         <div className="space-y-3">
           {contests.map((contest, index) => (
-            <div key={contest.name} className="group flex items-center justify-between border-b border-white/8 pb-4">
+            <div
+              key={contest.name}
+              className="group flex items-center justify-between border-b border-white/8 pb-4"
+            >
               <div className="flex items-center gap-4">
                 <span className="w-5 select-none text-xs text-white/20">
                   {String(index + 1).padStart(2, "0")}
