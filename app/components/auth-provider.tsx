@@ -1,66 +1,17 @@
 "use client";
 
 import { createContext, useContext, useMemo, useState } from "react";
-
-type StoredUser = {
-  username: string;
-  password: string;
-  isAdmin: boolean;
-};
-
-export type AuthUser = {
-  username: string;
-  password: string;
-  isAdmin: boolean;
-};
+import type { AuthUser } from "@/app/lib/auth-data";
 
 type AuthContextValue = {
   user: AuthUser | null;
-  login: (username: string, password: string) => boolean;
-  register: (username: string, password: string) => boolean;
+  login: (username: string, password: string) => Promise<boolean>;
+  register: (username: string, password: string) => Promise<boolean>;
   logout: () => void;
 };
 
-const ADMIN_USER = {
-  username: "moonsilver",
-  password: "msv",
-  isAdmin: true,
-} satisfies StoredUser;
-
-const USERS_KEY = "moon-auth-users";
 const CURRENT_KEY = "moon-auth-current";
-
 const AuthContext = createContext<AuthContextValue | null>(null);
-
-function readUsers(): StoredUser[] {
-  if (typeof window === "undefined") {
-    return [ADMIN_USER];
-  }
-
-  try {
-    const raw = window.localStorage.getItem(USERS_KEY);
-    if (!raw) {
-      window.localStorage.setItem(USERS_KEY, JSON.stringify([ADMIN_USER]));
-      return [ADMIN_USER];
-    }
-
-    const parsed = JSON.parse(raw) as StoredUser[];
-    if (!Array.isArray(parsed) || parsed.length === 0) {
-      window.localStorage.setItem(USERS_KEY, JSON.stringify([ADMIN_USER]));
-      return [ADMIN_USER];
-    }
-
-    if (!parsed.some((item) => item.username === ADMIN_USER.username)) {
-      parsed.unshift(ADMIN_USER);
-      window.localStorage.setItem(USERS_KEY, JSON.stringify(parsed));
-    }
-
-    return parsed;
-  } catch {
-    window.localStorage.setItem(USERS_KEY, JSON.stringify([ADMIN_USER]));
-    return [ADMIN_USER];
-  }
-}
 
 function readCurrentUser(): AuthUser | null {
   if (typeof window === "undefined") {
@@ -101,28 +52,34 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
     }
 
+    async function submitAuth(action: "login" | "register", username: string, password: string) {
+      const response = await fetch("/api/auth", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          action,
+          username,
+          password,
+        }),
+      });
+
+      const data = (await response.json().catch(() => null)) as {
+        user?: AuthUser;
+        error?: string;
+      } | null;
+
+      if (!response.ok || !data?.user) {
+        return null;
+      }
+
+      return data.user;
+    }
+
     return {
       user,
-      login(username, password) {
-        const trimmedUsername = username.trim();
-        const trimmedPassword = password.trim();
-        const users = readUsers();
-        const matched = users.find(
-          (item) => item.username === trimmedUsername && item.password === trimmedPassword,
-        );
-
-        if (!matched) {
-          return false;
-        }
-
-        persistCurrent({
-          username: matched.username,
-          password: matched.password,
-          isAdmin: matched.isAdmin,
-        });
-        return true;
-      },
-      register(username, password) {
+      async login(username, password) {
         const trimmedUsername = username.trim();
         const trimmedPassword = password.trim();
 
@@ -130,24 +87,28 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           return false;
         }
 
-        const users = readUsers();
-        if (users.some((item) => item.username === trimmedUsername)) {
+        const matched = await submitAuth("login", trimmedUsername, trimmedPassword);
+        if (!matched) {
           return false;
         }
 
-        const nextUser: StoredUser = {
-          username: trimmedUsername,
-          password: trimmedPassword,
-          isAdmin: false,
-        };
+        persistCurrent(matched);
+        return true;
+      },
+      async register(username, password) {
+        const trimmedUsername = username.trim();
+        const trimmedPassword = password.trim();
 
-        const nextUsers = [...users, nextUser];
-        window.localStorage.setItem(USERS_KEY, JSON.stringify(nextUsers));
-        persistCurrent({
-          username: nextUser.username,
-          password: nextUser.password,
-          isAdmin: nextUser.isAdmin,
-        });
+        if (!trimmedUsername || !trimmedPassword) {
+          return false;
+        }
+
+        const created = await submitAuth("register", trimmedUsername, trimmedPassword);
+        if (!created) {
+          return false;
+        }
+
+        persistCurrent(created);
         return true;
       },
       logout() {

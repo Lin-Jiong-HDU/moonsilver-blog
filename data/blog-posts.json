@@ -9,7 +9,10 @@
       "博客"
     ],
     "createdAt": "2026-04-22",
-    "updatedAt": "2026-04-22"
+    "updatedAt": "2026-04-22",
+    "fontSize": 16,
+    "lineHeight": 1.75,
+    "paragraphSpacing": 14
   },
   {
     "id": "site-update",
@@ -21,6 +24,9 @@
       "说明"
     ],
     "createdAt": "2026-04-22",
-    "updatedAt": "2026-04-22"
+    "updatedAt": "2026-04-22",
+    "fontSize": 16,
+    "lineHeight": 1.75,
+    "paragraphSpacing": 14
   }
 ]

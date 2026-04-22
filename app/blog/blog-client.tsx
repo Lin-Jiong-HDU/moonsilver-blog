@@ -1,17 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useAuth } from "@/app/components/auth-provider";
-import {
-  DEFAULT_BLOG_POSTS,
-  createEmptyBlogPost,
-  type BlogPost,
-} from "@/app/lib/blog-data";
-
-function getFallbackPost(posts: BlogPost[]) {
-  return posts[0] ?? DEFAULT_BLOG_POSTS[0] ?? createEmptyBlogPost();
-}
+import { DEFAULT_BLOG_POSTS, createEmptyBlogPost, type BlogPost } from "@/app/lib/blog-data";
 
 function parseTags(value: string) {
   return value
@@ -20,9 +12,14 @@ function parseTags(value: string) {
     .filter(Boolean);
 }
 
+function getFallbackPost(posts: BlogPost[]) {
+  return posts[0] ?? DEFAULT_BLOG_POSTS[0] ?? createEmptyBlogPost();
+}
+
 export function BlogClient() {
   const { user } = useAuth();
   const isAdmin = user?.isAdmin ?? false;
+  const editorRef = useRef<HTMLDivElement | null>(null);
 
   const [posts, setPosts] = useState<BlogPost[]>(DEFAULT_BLOG_POSTS);
   const [selectedId, setSelectedId] = useState<string>(DEFAULT_BLOG_POSTS[0]?.id ?? "");
@@ -37,10 +34,7 @@ export function BlogClient() {
 
     async function loadPosts() {
       try {
-        const response = await fetch("/api/blog", {
-          cache: "no-store",
-        });
-
+        const response = await fetch("/api/blog", { cache: "no-store" });
         if (!response.ok) {
           throw new Error("Failed to load blog posts.");
         }
@@ -52,12 +46,12 @@ export function BlogClient() {
 
         const nextPosts = Array.isArray(data.posts) && data.posts.length > 0 ? data.posts : DEFAULT_BLOG_POSTS;
         setPosts(nextPosts);
-        setSelectedId((current) => nextPosts.find((post) => post.id === current)?.id ?? nextPosts[0]?.id ?? "");
+        setSelectedId(nextPosts[0]?.id ?? "");
       } catch {
         if (active) {
           setPosts(DEFAULT_BLOG_POSTS);
           setSelectedId(DEFAULT_BLOG_POSTS[0]?.id ?? "");
-          setStatusMessage("博客暂时读取本地默认内容，保存后会同步到服务器。");
+          setStatusMessage("博客暂时读取默认内容，保存后会同步到服务器。");
         }
       } finally {
         if (active) {
@@ -81,11 +75,32 @@ export function BlogClient() {
 
     setDraft(selectedPost);
     setTagInput(selectedPost.tags.join(", "));
+    if (editorRef.current) {
+      editorRef.current.innerHTML = selectedPost.content;
+    }
   }, [posts, selectedId]);
 
-  const selectedPost = posts.find((post) => post.id === selectedId) ?? draft;
+  const selectedPost = useMemo(() => posts.find((post) => post.id === selectedId) ?? draft, [posts, selectedId, draft]);
 
-  async function persistPosts(nextPosts: BlogPost[]) {
+  function syncDraftFromEditor() {
+    const content = editorRef.current?.innerHTML ?? draft.content;
+    setDraft((current) => ({
+      ...current,
+      content,
+    }));
+  }
+
+  function applyFormatting(command: "bold" | "italic" | "underline") {
+    if (!editorRef.current) {
+      return;
+    }
+
+    editorRef.current.focus();
+    document.execCommand(command, false);
+    syncDraftFromEditor();
+  }
+
+  async function persistPosts(nextPosts: BlogPost[], focusId: string) {
     if (!user || !isAdmin) {
       setStatusMessage("只有管理员账号可以保存博客内容。");
       return;
@@ -115,7 +130,7 @@ export function BlogClient() {
 
       const savedPosts = Array.isArray(data?.posts) && data?.posts.length > 0 ? data.posts : nextPosts;
       setPosts(savedPosts);
-      setSelectedId((current) => savedPosts.find((post) => post.id === current)?.id ?? savedPosts[0]?.id ?? "");
+      setSelectedId(savedPosts.find((post) => post.id === focusId)?.id ?? savedPosts[0]?.id ?? "");
       setStatusMessage("博客已同步到站点服务器。");
     } catch {
       setStatusMessage("保存失败，请稍后再试。");
@@ -130,6 +145,10 @@ export function BlogClient() {
     setDraft(nextDraft);
     setTagInput("");
     setStatusMessage(null);
+    if (editorRef.current) {
+      editorRef.current.innerHTML = nextDraft.content;
+      editorRef.current.focus();
+    }
   }
 
   async function handleSave() {
@@ -139,13 +158,16 @@ export function BlogClient() {
       return;
     }
 
+    syncDraftFromEditor();
+    const content = editorRef.current?.innerHTML ?? draft.content;
     const today = new Date().toISOString().slice(0, 10);
     const tags = parseTags(tagInput);
+
     const nextPost: BlogPost = {
       ...draft,
       title,
       excerpt: draft.excerpt.trim(),
-      content: draft.content.trim(),
+      content,
       tags,
       updatedAt: today,
       createdAt: draft.createdAt || today,
@@ -159,7 +181,7 @@ export function BlogClient() {
     setDraft(nextPost);
     setSelectedId(nextPost.id);
     setTagInput(tags.join(", "));
-    await persistPosts(nextPosts);
+    await persistPosts(nextPosts, nextPost.id);
   }
 
   async function handleDelete() {
@@ -170,34 +192,50 @@ export function BlogClient() {
       setSelectedId(DEFAULT_BLOG_POSTS[0]?.id ?? fallback.id);
       setDraft(DEFAULT_BLOG_POSTS[0] ?? fallback);
       setTagInput((DEFAULT_BLOG_POSTS[0] ?? fallback).tags.join(", "));
-      await persistPosts(DEFAULT_BLOG_POSTS);
+      if (editorRef.current) {
+        editorRef.current.innerHTML = (DEFAULT_BLOG_POSTS[0] ?? fallback).content;
+      }
+      await persistPosts(DEFAULT_BLOG_POSTS, DEFAULT_BLOG_POSTS[0]?.id ?? fallback.id);
       return;
     }
 
     setSelectedId(fallback.id);
     setDraft(fallback);
     setTagInput(fallback.tags.join(", "));
-    await persistPosts(nextPosts);
+    if (editorRef.current) {
+      editorRef.current.innerHTML = fallback.content;
+    }
+    await persistPosts(nextPosts, fallback.id);
   }
 
   return (
     <div className="min-h-screen bg-[var(--app-bg)] pt-24 text-[var(--app-fg)] transition-colors duration-300">
       <section className="mx-auto max-w-7xl px-6 py-16">
-        <div className="max-w-3xl">
-          <p className="text-xs uppercase tracking-[0.25em] text-[var(--app-muted)]">Blog</p>
-          <h1 className="mt-4 text-4xl font-bold tracking-tight md:text-5xl">博客页</h1>
-          <p className="mt-4 text-sm leading-relaxed text-[var(--app-muted)] md:text-base">
-            文章内容由站点服务器统一保存。管理员登录后可以直接在前端新增、编辑和删除文章，所有访问者看到的都是同一份内容。
-          </p>
+        <div className="flex flex-wrap items-start justify-between gap-4">
+          <div className="max-w-3xl">
+            <p className="text-xs uppercase tracking-[0.25em] text-[var(--app-muted)]">Blog</p>
+            <h1 className="mt-4 text-4xl font-bold tracking-tight md:text-5xl">博客页</h1>
+            <p className="mt-4 text-sm leading-relaxed text-[var(--app-muted)] md:text-base">
+              文章内容由站点服务器统一保存。管理员登录后可以在这里直接编辑，所有访问者看到的都是同一份内容。
+            </p>
+          </div>
+
+          <Link
+            href="/"
+            className="rounded-full border border-[var(--app-border)] px-4 py-2 text-sm text-[var(--app-muted)] transition-colors hover:border-[var(--app-border-strong)] hover:text-[var(--app-fg)]"
+          >
+            返回首页
+          </Link>
         </div>
 
-        <div className="mt-12 grid gap-6 lg:grid-cols-[0.82fr_1.18fr]">
+        <div className="mt-12 grid gap-6 lg:grid-cols-[0.84fr_1.16fr]">
           <aside className="space-y-4">
             <div className="rounded-[28px] border border-[var(--app-border)] bg-[var(--app-surface)]/70 p-5">
               <div className="flex items-center justify-between gap-3">
                 <p className="text-xs uppercase tracking-[0.2em] text-[var(--app-muted)]">Posts</p>
                 {isLoading ? <span className="text-xs text-[var(--app-muted)]">同步中</span> : null}
               </div>
+
               <div className="mt-4 space-y-2">
                 {posts.map((post) => {
                   const active = post.id === selectedId;
@@ -221,97 +259,167 @@ export function BlogClient() {
                   );
                 })}
               </div>
+
+              {isAdmin ? (
+                <button
+                  type="button"
+                  onClick={handleNewPost}
+                  className="mt-4 w-full rounded-full border border-[var(--app-border)] px-4 py-3 text-sm text-[var(--app-muted)] transition-colors hover:border-[var(--app-border-strong)] hover:text-[var(--app-fg)]"
+                >
+                  新建文章
+                </button>
+              ) : null}
             </div>
 
             <div className="rounded-[28px] border border-[var(--app-border)] bg-[var(--app-surface)]/70 p-5">
-              <p className="text-xs uppercase tracking-[0.2em] text-[var(--app-muted)]">Current</p>
-              <h2 className="mt-4 text-2xl font-semibold text-[var(--app-fg)]">{selectedPost.title}</h2>
-              <p className="mt-3 text-sm leading-relaxed text-[var(--app-muted)]">{selectedPost.excerpt}</p>
-              <div className="mt-4 flex flex-wrap gap-2">
-                {selectedPost.tags.map((tag) => (
-                  <span
-                    key={tag}
-                    className="rounded-full border border-[var(--app-border)] px-3 py-1 text-xs text-[var(--app-muted)]"
-                  >
-                    {tag}
-                  </span>
-                ))}
+              <p className="text-xs uppercase tracking-[0.2em] text-[var(--app-muted)]">Meta</p>
+              <div className="mt-4 space-y-3 text-sm text-[var(--app-muted)]">
+                <p>标题：{selectedPost.title || "未命名文章"}</p>
+                <p>标签：{selectedPost.tags.length > 0 ? selectedPost.tags.join(" / ") : "无"}</p>
+                <p>日期：{selectedPost.updatedAt}</p>
               </div>
             </div>
           </aside>
 
           <div className="space-y-6">
             <div className="rounded-[28px] border border-[var(--app-border)] bg-[var(--app-surface)]/70 p-6 md:p-8">
-              <p className="text-xs uppercase tracking-[0.2em] text-[var(--app-muted)]">Reading</p>
-              <h2 className="mt-4 text-3xl font-semibold text-[var(--app-fg)]">{selectedPost.title}</h2>
-              <p className="mt-4 whitespace-pre-wrap text-sm leading-relaxed text-[var(--app-muted)]">
-                {selectedPost.content}
-              </p>
-              {statusMessage ? (
-                <p className="mt-5 rounded-2xl border border-[var(--app-border)] bg-[var(--app-bg)] px-4 py-3 text-sm text-[var(--app-muted)]">
-                  {statusMessage}
-                </p>
-              ) : null}
-            </div>
-
-            {isAdmin ? (
-              <div className="rounded-[28px] border border-[var(--app-border)] bg-[var(--app-surface)]/70 p-6 md:p-8">
-                <div className="flex flex-wrap items-center justify-between gap-4">
-                  <div>
-                    <p className="text-xs uppercase tracking-[0.2em] text-[var(--app-muted)]">Editor</p>
-                    <h3 className="mt-2 text-2xl font-semibold text-[var(--app-fg)]">管理员编辑区</h3>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={handleNewPost}
-                    className="rounded-full border border-[var(--app-border)] px-4 py-2 text-sm text-[var(--app-muted)] transition-colors hover:border-[var(--app-border-strong)] hover:text-[var(--app-fg)]"
-                  >
-                    新建文章
-                  </button>
+              <div className="flex flex-wrap items-center justify-between gap-4">
+                <div>
+                  <p className="text-xs uppercase tracking-[0.2em] text-[var(--app-muted)]">Editor</p>
+                  <h2 className="mt-2 text-2xl font-semibold text-[var(--app-fg)]">
+                    {isAdmin ? "小型排版编辑器" : "只读预览"}
+                  </h2>
                 </div>
+                {isAdmin ? (
+                  <div className="flex flex-wrap gap-2">
+                    <button
+                      type="button"
+                      onClick={() => applyFormatting("bold")}
+                      className="rounded-full border border-[var(--app-border)] px-3 py-2 text-xs font-semibold text-[var(--app-muted)] transition-colors hover:border-[var(--app-border-strong)] hover:text-[var(--app-fg)]"
+                    >
+                      B
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => applyFormatting("italic")}
+                      className="rounded-full border border-[var(--app-border)] px-3 py-2 text-xs italic text-[var(--app-muted)] transition-colors hover:border-[var(--app-border-strong)] hover:text-[var(--app-fg)]"
+                    >
+                      I
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => applyFormatting("underline")}
+                      className="rounded-full border border-[var(--app-border)] px-3 py-2 text-xs underline text-[var(--app-muted)] transition-colors hover:border-[var(--app-border-strong)] hover:text-[var(--app-fg)]"
+                    >
+                      U
+                    </button>
+                  </div>
+                ) : null}
+              </div>
 
-                <div className="mt-6 grid gap-4">
-                  <label className="block">
-                    <span className="text-xs uppercase tracking-[0.2em] text-[var(--app-muted)]">Title</span>
-                    <input
-                      value={draft.title}
-                      onChange={(event) => setDraft((current) => ({ ...current, title: event.target.value }))}
-                      className="mt-2 w-full rounded-2xl border border-[var(--app-border)] bg-[var(--app-bg)] px-4 py-3 text-sm text-[var(--app-fg)] outline-none transition-colors focus:border-[var(--app-border-strong)]"
-                      placeholder="文章标题"
-                    />
-                  </label>
+              <div className="mt-5 grid gap-4 md:grid-cols-3">
+                <label className="block">
+                  <span className="text-xs uppercase tracking-[0.2em] text-[var(--app-muted)]">Title</span>
+                  <input
+                    value={draft.title}
+                    onChange={(event) => setDraft((current) => ({ ...current, title: event.target.value }))}
+                    className="mt-2 w-full rounded-2xl border border-[var(--app-border)] bg-[var(--app-bg)] px-4 py-3 text-sm text-[var(--app-fg)] outline-none transition-colors focus:border-[var(--app-border-strong)]"
+                    placeholder="文章标题"
+                    readOnly={!isAdmin}
+                  />
+                </label>
 
-                  <label className="block">
-                    <span className="text-xs uppercase tracking-[0.2em] text-[var(--app-muted)]">Excerpt</span>
-                    <input
-                      value={draft.excerpt}
-                      onChange={(event) => setDraft((current) => ({ ...current, excerpt: event.target.value }))}
-                      className="mt-2 w-full rounded-2xl border border-[var(--app-border)] bg-[var(--app-bg)] px-4 py-3 text-sm text-[var(--app-fg)] outline-none transition-colors focus:border-[var(--app-border-strong)]"
-                      placeholder="摘要"
-                    />
-                  </label>
+                <label className="block">
+                  <span className="text-xs uppercase tracking-[0.2em] text-[var(--app-muted)]">Excerpt</span>
+                  <input
+                    value={draft.excerpt}
+                    onChange={(event) => setDraft((current) => ({ ...current, excerpt: event.target.value }))}
+                    className="mt-2 w-full rounded-2xl border border-[var(--app-border)] bg-[var(--app-bg)] px-4 py-3 text-sm text-[var(--app-fg)] outline-none transition-colors focus:border-[var(--app-border-strong)]"
+                    placeholder="摘要"
+                    readOnly={!isAdmin}
+                  />
+                </label>
 
-                  <label className="block">
-                    <span className="text-xs uppercase tracking-[0.2em] text-[var(--app-muted)]">Tags</span>
-                    <input
-                      value={tagInput}
-                      onChange={(event) => setTagInput(event.target.value)}
-                      className="mt-2 w-full rounded-2xl border border-[var(--app-border)] bg-[var(--app-bg)] px-4 py-3 text-sm text-[var(--app-fg)] outline-none transition-colors focus:border-[var(--app-border-strong)]"
-                      placeholder="标签，用逗号分隔"
-                    />
-                  </label>
+                <label className="block">
+                  <span className="text-xs uppercase tracking-[0.2em] text-[var(--app-muted)]">Tags</span>
+                  <input
+                    value={tagInput}
+                    onChange={(event) => setTagInput(event.target.value)}
+                    className="mt-2 w-full rounded-2xl border border-[var(--app-border)] bg-[var(--app-bg)] px-4 py-3 text-sm text-[var(--app-fg)] outline-none transition-colors focus:border-[var(--app-border-strong)]"
+                    placeholder="标签，用逗号分隔"
+                    readOnly={!isAdmin}
+                  />
+                </label>
+              </div>
 
-                  <label className="block">
-                    <span className="text-xs uppercase tracking-[0.2em] text-[var(--app-muted)]">Content</span>
-                    <textarea
-                      value={draft.content}
-                      onChange={(event) => setDraft((current) => ({ ...current, content: event.target.value }))}
-                      className="mt-2 min-h-48 w-full rounded-2xl border border-[var(--app-border)] bg-[var(--app-bg)] px-4 py-3 text-sm text-[var(--app-fg)] outline-none transition-colors focus:border-[var(--app-border-strong)]"
-                      placeholder="正文内容"
-                    />
-                  </label>
+              <div className="mt-5 grid gap-4 lg:grid-cols-[1fr_1fr_1fr]">
+                <label className="block">
+                  <span className="text-xs uppercase tracking-[0.2em] text-[var(--app-muted)]">
+                    字号 {draft.fontSize}px
+                  </span>
+                  <input
+                    type="range"
+                    min="12"
+                    max="28"
+                    step="1"
+                    value={draft.fontSize}
+                    onChange={(event) =>
+                      setDraft((current) => ({
+                        ...current,
+                        fontSize: Number(event.target.value),
+                      }))
+                    }
+                    className="mt-3 w-full"
+                    disabled={!isAdmin}
+                  />
+                </label>
 
-                  <div className="flex flex-wrap gap-3">
+                <label className="block">
+                  <span className="text-xs uppercase tracking-[0.2em] text-[var(--app-muted)]">
+                    行距 {draft.lineHeight.toFixed(2)}
+                  </span>
+                  <input
+                    type="range"
+                    min="1.2"
+                    max="2.4"
+                    step="0.05"
+                    value={draft.lineHeight}
+                    onChange={(event) =>
+                      setDraft((current) => ({
+                        ...current,
+                        lineHeight: Number(event.target.value),
+                      }))
+                    }
+                    className="mt-3 w-full"
+                    disabled={!isAdmin}
+                  />
+                </label>
+
+                <label className="block">
+                  <span className="text-xs uppercase tracking-[0.2em] text-[var(--app-muted)]">
+                    段落间距 {draft.paragraphSpacing}px
+                  </span>
+                  <input
+                    type="range"
+                    min="0"
+                    max="28"
+                    step="1"
+                    value={draft.paragraphSpacing}
+                    onChange={(event) =>
+                      setDraft((current) => ({
+                        ...current,
+                        paragraphSpacing: Number(event.target.value),
+                      }))
+                    }
+                    className="mt-3 w-full"
+                    disabled={!isAdmin}
+                  />
+                </label>
+              </div>
+
+              <div className="mt-5 flex flex-wrap gap-3">
+                {isAdmin ? (
+                  <>
                     <button
                       type="button"
                       onClick={handleSave}
@@ -328,26 +436,53 @@ export function BlogClient() {
                     >
                       删除当前文章
                     </button>
-                  </div>
-                </div>
+                  </>
+                ) : null}
               </div>
-            ) : (
-              <div className="rounded-[28px] border border-[var(--app-border)] bg-[var(--app-surface)]/70 p-6 md:p-8">
-                <p className="text-xs uppercase tracking-[0.2em] text-[var(--app-muted)]">Editor Locked</p>
-                <h3 className="mt-4 text-2xl font-semibold text-[var(--app-fg)]">登录后开放编辑</h3>
-                <p className="mt-3 text-sm leading-relaxed text-[var(--app-muted)]">
-                  只有管理员账号可以修改博客内容。普通访问者可以直接阅读文章。
+
+              <div className="mt-6 rounded-[24px] border border-[var(--app-border)] bg-[var(--app-bg)] p-4">
+                <div
+                  ref={editorRef}
+                  contentEditable={isAdmin}
+                  suppressContentEditableWarning
+                  onInput={syncDraftFromEditor}
+                  onBlur={syncDraftFromEditor}
+                  className="min-h-80 outline-none"
+                  style={{
+                    fontSize: `${draft.fontSize}px`,
+                    lineHeight: draft.lineHeight,
+                  }}
+                  data-blog-editor
+                />
+                <style jsx global>{`
+                  [data-blog-editor] p {
+                    margin: 0 0 ${draft.paragraphSpacing}px;
+                  }
+
+                  [data-blog-editor] p:last-child {
+                    margin-bottom: 0;
+                  }
+
+                  [data-blog-editor] ul,
+                  [data-blog-editor] ol {
+                    margin: 0 0 ${draft.paragraphSpacing}px 1.25rem;
+                  }
+
+                  [data-blog-editor] h1,
+                  [data-blog-editor] h2,
+                  [data-blog-editor] h3,
+                  [data-blog-editor] h4 {
+                    margin: 0 0 ${draft.paragraphSpacing}px;
+                  }
+                `}</style>
+              </div>
+
+              {statusMessage ? (
+                <p className="mt-5 rounded-2xl border border-[var(--app-border)] bg-[var(--app-bg)] px-4 py-3 text-sm text-[var(--app-muted)]">
+                  {statusMessage}
                 </p>
-                <div className="mt-6 flex flex-wrap gap-3">
-                  <Link
-                    href="/account"
-                    className="rounded-full bg-[var(--app-fg)] px-5 py-3 text-sm font-medium text-[var(--app-bg)] transition-colors hover:opacity-90"
-                  >
-                    去登录
-                  </Link>
-                </div>
-              </div>
-            )}
+              ) : null}
+            </div>
           </div>
         </div>
       </section>
