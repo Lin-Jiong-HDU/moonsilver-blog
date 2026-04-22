@@ -3,59 +3,35 @@
 import Link from "next/link";
 import { useState } from "react";
 
-const leagues = [
+const widgetViews = [
   {
-    code: "PL",
-    name: "英超",
-    country: "England",
-    accent: "Premier League",
+    id: "livescore",
+    title: "Live Scores",
+    description: "比赛、赛程和实时比分",
+    src: "https://www.scorebat.com/embed/livescore/",
   },
   {
-    code: "PD",
-    name: "西甲",
-    country: "Spain",
-    accent: "LaLiga",
+    id: "standings",
+    title: "Standings",
+    description: "联赛积分与分组概览",
+    src: "https://www.scorebat.com/embed/standings/",
   },
   {
-    code: "BL1",
-    name: "德甲",
-    country: "Germany",
-    accent: "Bundesliga",
-  },
-  {
-    code: "SA",
-    name: "意甲",
-    country: "Italy",
-    accent: "Serie A",
-  },
-  {
-    code: "FL1",
-    name: "法甲",
-    country: "France",
-    accent: "Ligue 1",
+    id: "videos",
+    title: "Highlights",
+    description: "集锦与进球视频",
+    src: "https://www.scorebat.com/embed/",
   },
 ] as const;
 
-const widgetViews = [
-  {
-    id: "standings",
-    title: "积分榜",
-    description: "联赛排名与积分变化",
-    src: "https://cafescore.com/widget/iframe/standings",
-  },
-  {
-    id: "schedule",
-    title: "赛程",
-    description: "接下来的比赛安排",
-    src: "https://cafescore.com/widget/iframe/schedule",
-  },
-  {
-    id: "matchCenter",
-    title: "比赛中心",
-    description: "比赛过程与即时信息",
-    src: "https://cafescore.com/widget/iframe/matchCenter",
-  },
-] as const;
+const featuredLeagues = [
+  "Premier League",
+  "La Liga",
+  "Serie A",
+  "Bundesliga",
+  "Ligue 1",
+  "Champions League",
+];
 
 function SectionLabel({ children }: { children: string }) {
   return (
@@ -74,20 +50,22 @@ function Footer() {
 }
 
 export function FootballWidgetPage() {
-  const [activeCode, setActiveCode] = useState<(typeof leagues)[number]["code"]>("PL");
-  const [activeView, setActiveView] = useState<(typeof widgetViews)[number]["id"]>("standings");
-  const activeLeague = leagues.find((league) => league.code === activeCode) ?? leagues[0];
-  const activeWidget = widgetViews.find((view) => view.id === activeView) ?? widgetViews[0];
+  const [activeView, setActiveView] =
+    useState<(typeof widgetViews)[number]["id"]>("livescore");
+  const activeWidget =
+    widgetViews.find((view) => view.id === activeView) ?? widgetViews[0];
 
   return (
     <div className="min-h-screen bg-black pt-20 text-white">
-      <section className="mx-auto max-w-6xl px-6 py-24">
+      <section className="mx-auto max-w-6xl px-6 py-20 md:py-24">
         <div className="max-w-3xl">
           <SectionLabel>Football</SectionLabel>
-          <h1 className="mt-4 text-4xl font-bold md:text-5xl">五大联赛</h1>
-          <p className="mt-4 text-sm leading-relaxed text-white/40">
-            这里不走 API，而是直接嵌入 CafeScore 官方 widget。你可以切换联赛和视图，
-            查看积分榜、赛程以及比赛中心。
+          <h1 className="mt-4 text-4xl font-bold tracking-tight md:text-5xl">
+            五大联赛
+          </h1>
+          <p className="mt-4 text-sm leading-relaxed text-white/45 md:text-base">
+            这里不再依赖 CafeScore，改为直接嵌入 ScoreBat 的官方 widget。
+            你可以在比分、积分榜和集锦之间切换，页面保持现成面板的使用方式。
           </p>
         </div>
 
@@ -95,34 +73,9 @@ export function FootballWidgetPage() {
           <div className="flex flex-col gap-8 xl:grid xl:grid-cols-[280px_minmax(0,1fr)] xl:items-start">
             <aside className="space-y-4">
               <div className="rounded-2xl border border-white/8 bg-black/30 p-5">
-                <p className="text-xs uppercase tracking-[0.2em] text-white/25">League Switcher</p>
-                <div className="mt-4 space-y-2">
-                  {leagues.map((league) => {
-                    const active = league.code === activeCode;
-
-                    return (
-                      <button
-                        key={league.code}
-                        type="button"
-                        onClick={() => setActiveCode(league.code)}
-                        className={`w-full rounded-2xl border px-4 py-3 text-left transition-colors ${
-                          active
-                            ? "border-white/25 bg-white/[0.08] text-white"
-                            : "border-white/8 text-white/45 hover:border-white/20 hover:text-white"
-                        }`}
-                      >
-                        <p className="text-sm font-medium">{league.name}</p>
-                        <p className="mt-1 text-xs uppercase tracking-[0.18em] text-white/30">
-                          {league.accent}
-                        </p>
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-
-              <div className="rounded-2xl border border-white/8 bg-black/30 p-5">
-                <p className="text-xs uppercase tracking-[0.2em] text-white/25">Widget View</p>
+                <p className="text-xs uppercase tracking-[0.2em] text-white/25">
+                  Widget View
+                </p>
                 <div className="mt-4 grid gap-2">
                   {widgetViews.map((view) => {
                     const active = view.id === activeView;
@@ -149,12 +102,32 @@ export function FootballWidgetPage() {
               </div>
 
               <div className="rounded-2xl border border-white/8 bg-black/30 p-5">
-                <p className="text-xs uppercase tracking-[0.2em] text-white/25">Current View</p>
-                <h2 className="mt-4 text-2xl font-semibold text-white">{activeLeague.name}</h2>
-                <p className="mt-2 text-sm text-white/35">{activeLeague.country}</p>
-                <p className="mt-4 text-sm leading-relaxed text-white/40">
-                  当前嵌入页会根据右侧 widget 视图显示联赛信息。
+                <p className="text-xs uppercase tracking-[0.2em] text-white/25">
+                  Coverage
                 </p>
+                <div className="mt-4 flex flex-wrap gap-2">
+                  {featuredLeagues.map((league) => (
+                    <span
+                      key={league}
+                      className="rounded-full border border-white/10 bg-white/[0.03] px-3 py-1 text-xs text-white/55"
+                    >
+                      {league}
+                    </span>
+                  ))}
+                </div>
+                <p className="mt-4 text-sm leading-relaxed text-white/40">
+                  ScoreBat 的 widget 会自带联赛选择和比赛浏览，不需要你自己维护数据源。
+                </p>
+              </div>
+
+              <div className="rounded-2xl border border-white/8 bg-black/30 p-5">
+                <p className="text-xs uppercase tracking-[0.2em] text-white/25">
+                  Current Widget
+                </p>
+                <h2 className="mt-4 text-2xl font-semibold text-white">
+                  {activeWidget.title}
+                </h2>
+                <p className="mt-2 text-sm text-white/35">{activeWidget.description}</p>
               </div>
             </aside>
 
@@ -166,7 +139,7 @@ export function FootballWidgetPage() {
                       Embedded Widget
                     </p>
                     <p className="mt-1 text-sm text-white/55">
-                      {activeLeague.accent} · {activeWidget.title}
+                      ScoreBat / {activeWidget.title}
                     </p>
                   </div>
                   <a
@@ -181,9 +154,9 @@ export function FootballWidgetPage() {
 
                 <div className="overflow-hidden rounded-[22px] border border-white/8 bg-black">
                   <iframe
-                    key={`${activeLeague.code}-${activeWidget.id}`}
+                    key={activeWidget.id}
                     src={activeWidget.src}
-                    title={`${activeLeague.name} ${activeWidget.title} widget`}
+                    title={`ScoreBat ${activeWidget.title} widget`}
                     className="h-[1800px] w-full"
                     loading="lazy"
                     referrerPolicy="no-referrer-when-downgrade"
