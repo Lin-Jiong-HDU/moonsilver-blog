@@ -10,6 +10,7 @@ type StoredUser = {
 
 export type AuthUser = {
   username: string;
+  password: string;
   isAdmin: boolean;
 };
 
@@ -116,6 +117,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
         persistCurrent({
           username: matched.username,
+          password: matched.password,
           isAdmin: matched.isAdmin,
         });
         return true;
@@ -143,6 +145,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         window.localStorage.setItem(USERS_KEY, JSON.stringify(nextUsers));
         persistCurrent({
           username: nextUser.username,
+          password: nextUser.password,
           isAdmin: nextUser.isAdmin,
         });
         return true;
