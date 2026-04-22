@@ -11,7 +11,6 @@ export function AccountClient() {
   const [message, setMessage] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const adminHint = useMemo(() => "管理员账号：moonsilver / msv", []);
 
   async function handleSubmit() {
     setIsSubmitting(true);
