@@ -19,11 +19,9 @@ export type Post = {
 };
 
 export const siteNavigation = [
-  { href: "/", label: "Home" },
+  { href: "/", label: "首页" },
   { href: "/jobti", label: "Jobti" },
-  { href: "/writing", label: "Writing" },
-  { href: "/notes", label: "Notes" },
-  { href: "/about", label: "About" },
+  { href: "/super-spy-racer", label: "赛车" },
 ];
 
 export const currentFocus = [
