@@ -3,12 +3,13 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
+import { useAuth } from "@/app/components/auth-provider";
 
 const links = [
   { href: "/", label: "首页" },
   { href: "/fun", label: "娱乐" },
+  { href: "/blog", label: "博客" },
   { href: "/contest", label: "竞赛专区" },
-  { href: "/football", label: "足球数据" },
 ];
 
 function isActive(pathname: string, href: string) {
@@ -30,6 +31,7 @@ function getInitialTheme(): "dark" | "light" {
 
 export function SiteNavbar() {
   const pathname = usePathname();
+  const { user, logout } = useAuth();
   const [theme, setTheme] = useState<"dark" | "light">(getInitialTheme);
 
   useEffect(() => {
@@ -38,12 +40,7 @@ export function SiteNavbar() {
   }, [theme]);
 
   function toggleTheme() {
-    setTheme((current) => {
-      const nextTheme = current === "dark" ? "light" : "dark";
-      window.localStorage.setItem("site-theme", nextTheme);
-      document.documentElement.dataset.theme = nextTheme;
-      return nextTheme;
-    });
+    setTheme((current) => (current === "dark" ? "light" : "dark"));
   }
 
   return (
@@ -60,9 +57,10 @@ export function SiteNavbar() {
           <button
             type="button"
             onClick={toggleTheme}
+            aria-label={theme === "dark" ? "切换到白天模式" : "切换到黑夜模式"}
             className="rounded-full border border-[var(--app-border)] px-3 py-2 text-xs text-[var(--app-muted)] transition-colors hover:border-[var(--app-border-strong)] hover:text-[var(--app-fg)] lg:hidden"
           >
-            {theme === "dark" ? "白天模式" : "黑夜模式"}
+            <span aria-hidden="true">{theme === "dark" ? "☀" : "☾"}</span>
           </button>
         </div>
 
@@ -92,28 +90,28 @@ export function SiteNavbar() {
           </ul>
 
           <div className="flex flex-wrap items-center gap-2">
-            <a
-              href="https://www.johnlin.top/games/fc"
-              target="_blank"
-              rel="noreferrer"
+            <Link
+              href="/account"
               className="rounded-full border border-[var(--app-border)] px-3 py-2 text-xs text-[var(--app-muted)] transition-colors hover:border-[var(--app-border-strong)] hover:text-[var(--app-fg)]"
             >
-              友站
-            </a>
-            <a
-              href="https://github.com/moonsilver-1"
-              target="_blank"
-              rel="noreferrer"
-              className="rounded-full border border-[var(--app-border)] px-3 py-2 text-xs text-[var(--app-muted)] transition-colors hover:border-[var(--app-border-strong)] hover:text-[var(--app-fg)]"
-            >
-              GitHub 联系
-            </a>
+              {user ? user.username : "登录 / 注册"}
+            </Link>
+            {user ? (
+              <button
+                type="button"
+                onClick={logout}
+                className="rounded-full border border-[var(--app-border)] px-3 py-2 text-xs text-[var(--app-muted)] transition-colors hover:border-[var(--app-border-strong)] hover:text-[var(--app-fg)]"
+              >
+                退出
+              </button>
+            ) : null}
             <button
               type="button"
               onClick={toggleTheme}
+              aria-label={theme === "dark" ? "切换到白天模式" : "切换到黑夜模式"}
               className="hidden rounded-full border border-[var(--app-border)] px-3 py-2 text-xs text-[var(--app-muted)] transition-colors hover:border-[var(--app-border-strong)] hover:text-[var(--app-fg)] lg:inline-flex"
             >
-              {theme === "dark" ? "白天模式" : "黑夜模式"}
+              <span aria-hidden="true">{theme === "dark" ? "☀" : "☾"}</span>
             </button>
           </div>
         </div>

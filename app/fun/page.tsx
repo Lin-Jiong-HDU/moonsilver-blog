@@ -3,19 +3,19 @@ import Link from "next/link";
 const entries = [
   {
     href: "/jobti",
-    icon: "🎮",
+    icon: "✦",
     title: "Jobti",
-    description: "一个带职业测绘感的互动小游戏，做完题后再统一生成结果。",
-    action: "进入体验",
-    badge: "Interactive",
+    description: "职业测评",
+    action: "进入",
+    badge: "Test",
   },
   {
     href: "/football",
-    icon: "⚽",
+    icon: "◉",
     title: "足球",
-    description: "切换查看五大联赛的积分榜、射手榜和相关统计信息。",
-    action: "查看联赛",
-    badge: "Widget",
+    description: "赛程 / 积分榜 / 射手榜",
+    action: "查看",
+    badge: "Data",
   },
 ];
 
@@ -29,7 +29,7 @@ export default function FunPage() {
           </span>
           <h1 className="mt-4 mb-4 text-4xl font-bold md:text-5xl">娱乐</h1>
           <p className="text-sm leading-relaxed text-white/40">
-            这里放一些轻一点的内容。可以玩一玩，也可以随手看看足球数据。
+            这里放轻量入口，点开就能继续看内容。
           </p>
         </div>
 
@@ -72,10 +72,6 @@ export default function FunPage() {
           ))}
         </div>
       </div>
-
-      <footer className="border-t border-white/5 py-8 text-center">
-        <p className="text-xs tracking-widest text-white/15">© {new Date().getFullYear()}</p>
-      </footer>
     </div>
   );
 }

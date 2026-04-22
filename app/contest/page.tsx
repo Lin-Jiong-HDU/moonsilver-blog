@@ -1,3 +1,8 @@
+"use client";
+
+import Link from "next/link";
+import { useAuth } from "@/app/components/auth-provider";
+
 const categories = [
   {
     id: "smart-car",
@@ -42,6 +47,36 @@ const categories = [
 ];
 
 export default function ContestPage() {
+  const { user } = useAuth();
+
+  if (!user) {
+    return (
+      <div className="min-h-screen bg-black pt-24 text-white">
+        <div className="mx-auto max-w-3xl px-6 py-24">
+          <p className="text-xs uppercase tracking-[0.25em] text-white/30">Contest</p>
+          <h1 className="mt-4 text-4xl font-bold md:text-5xl">竞赛专区</h1>
+          <p className="mt-4 text-sm leading-relaxed text-white/40">
+            这里需要先登录后才能查看。
+          </p>
+          <div className="mt-10 flex flex-wrap gap-3">
+            <Link
+              href="/account"
+              className="rounded-full bg-white px-5 py-3 text-sm font-medium text-black transition-colors hover:bg-white/90"
+            >
+              去登录
+            </Link>
+            <Link
+              href="/blog"
+              className="rounded-full border border-white/10 px-5 py-3 text-sm text-white/60 transition-colors hover:border-white/20 hover:text-white"
+            >
+              去博客页
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-black pt-20 text-white">
       <div className="mx-auto max-w-4xl px-6 py-24">

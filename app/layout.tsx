@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import { AuthProvider } from "@/app/components/auth-provider";
+import { SiteFooter } from "@/app/components/site-footer";
 import { SiteNavbar } from "@/app/components/site-navbar";
 
 export const metadata: Metadata = {
@@ -25,10 +27,13 @@ export default function RootLayout({
         />
       </head>
       <body>
-        <div className="min-h-screen bg-[var(--app-bg)] text-[var(--app-fg)] transition-colors duration-300">
-          <SiteNavbar />
-          <main>{children}</main>
-        </div>
+        <AuthProvider>
+          <div className="min-h-screen bg-[var(--app-bg)] text-[var(--app-fg)] transition-colors duration-300">
+            <SiteNavbar />
+            <main>{children}</main>
+            <SiteFooter />
+          </div>
+        </AuthProvider>
       </body>
     </html>
   );
