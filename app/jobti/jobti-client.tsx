@@ -12,11 +12,11 @@ import {
 import { calculateJobtiResult, createEmptyAnswers } from "@/app/jobti/jobti-engine";
 
 const answerOptions = [
-  { value: 1, label: "非常偏左" },
-  { value: 2, label: "略偏左" },
-  { value: 3, label: "居中" },
-  { value: 4, label: "略偏右" },
-  { value: 5, label: "非常偏右" },
+  { value: 1, label: "左侧非常符合" },
+  { value: 2, label: "左侧符合" },
+  { value: 3, label: "无感" },
+  { value: 4, label: "右侧符合" },
+  { value: 5, label: "右侧非常符合" },
 ];
 
 function SectionLabel({ children }: { children: string }) {
@@ -195,6 +195,9 @@ export function JobtiClient() {
 
           <div className="rounded-3xl border border-white/8 bg-white/[0.02] p-8 md:p-10">
             <p className="text-xs uppercase tracking-[0.2em] text-white/30">{currentQuestion.question_id}</p>
+            <p className="mt-4 text-sm leading-relaxed text-white/40">
+              下面两种描述里，选择更接近你真实状态的一项。结果会在全部答完后统一生成。
+            </p>
             <div className="mt-8 grid gap-6 md:grid-cols-2">
               <div className="rounded-2xl border border-white/8 p-6">
                 <p className="text-xs uppercase tracking-[0.2em] text-white/30">Left</p>
@@ -222,7 +225,9 @@ export function JobtiClient() {
                     }`}
                   >
                     <span className="text-sm">{option.label}</span>
-                    <span className="text-xs uppercase tracking-[0.2em]">{option.value}</span>
+                    <span className="text-xs uppercase tracking-[0.2em] text-white/30">
+                      {option.value}
+                    </span>
                   </button>
                 );
               })}

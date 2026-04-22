@@ -7,9 +7,9 @@ const awards = [
 
 const contests = [
   { award: "省一", name: "全国大学生数学建模竞赛" },
-  { award: "省二", name: "中国国际服务贸易交易会服务外包创新创业大赛" },
-  { award: "省铜", name: "挑战杯全国大学生课外学术科技作品竞赛" },
-  { award: "省三", name: "中国人工智能大赛" },
+  { award: "省二", name: "浙江省大学生服务外包创新应用大赛" },
+  { award: "省铜", name: "挑战杯“人工智能+”专项赛" },
+  { award: "省三", name: "浙江省人工智能竞赛" },
   { award: "国二", name: "APMCM亚太地区数学建模竞赛（中文赛道）" },
   { award: "国二", name: "APMCM亚太地区数学建模竞赛（英文赛道）" },
 ];
@@ -211,9 +211,8 @@ export default function HomePage() {
                 </span>
               </div>
               <span
-                className={`ml-4 shrink-0 rounded-full border px-2.5 py-0.5 text-xs font-medium ${
-                  awardColor[contest.award] ?? "border-white/10 bg-white/5 text-white/40"
-                }`}
+                className={`ml-4 shrink-0 rounded-full border px-2.5 py-0.5 text-xs font-medium ${awardColor[contest.award] ?? "border-white/10 bg-white/5 text-white/40"
+                  }`}
               >
                 {contest.award}
               </span>
