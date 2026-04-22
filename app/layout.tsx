@@ -5,24 +5,21 @@ import { NavLinks } from "@/app/components/nav-links";
 
 export const metadata: Metadata = {
   title: {
-    default: "Moonsilver Navigator",
-    template: "%s | Moonsilver Navigator",
+    default: "Moonsilver 的小家",
+    template: "%s | Moonsilver 的小家",
   },
-  description:
-    "Moonsilver 的极简导航站，目前保留 Jobti 职业测绘和超级间谍赛车两个主要入口。",
-  keywords: ["Moonsilver", "导航站", "Jobti", "职业测评", "NES", "超级间谍赛车"],
+  description: "Moonsilver 的小家。",
+  keywords: ["Moonsilver", "Jobti", "职业测评", "NES", "超级间谍赛车"],
   openGraph: {
-    title: "Moonsilver Navigator",
-    description:
-      "一个只保留关键入口的个人导航站：Jobti 职业测绘与超级间谍赛车。",
+    title: "Moonsilver 的小家",
+    description: "Moonsilver 的小家。",
     type: "website",
     locale: "zh_CN",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Moonsilver Navigator",
-    description:
-      "一个只保留关键入口的个人导航站：Jobti 职业测绘与超级间谍赛车。",
+    title: "Moonsilver 的小家",
+    description: "Moonsilver 的小家。",
   },
 };
 
@@ -57,10 +54,7 @@ export default function RootLayout({
                   </div>
                   <div className="space-y-0.5">
                     <p className="text-sm font-semibold tracking-[0.08em] text-white">
-                      Moonsilver
-                    </p>
-                    <p className="text-xs text-[var(--muted)]">
-                      Navigator for projects and play
+                      Moonsilver 的小家
                     </p>
                   </div>
                 </Link>
@@ -76,10 +70,7 @@ export default function RootLayout({
             <footer className="border-t border-white/10 py-8">
               <div className="flex flex-col gap-4 text-sm text-[var(--muted)] sm:flex-row sm:items-end sm:justify-between">
                 <div className="space-y-1">
-                  <p className="font-medium text-white">Moonsilver 导航站</p>
-                  <p>
-                    这一版只保留两个主要入口，让首页像一个清晰的分发台，而不是内容堆场。
-                  </p>
+                  <p className="font-medium text-white">Moonsilver 的小家</p>
                 </div>
                 <div className="flex flex-wrap gap-4">
                   <Link
