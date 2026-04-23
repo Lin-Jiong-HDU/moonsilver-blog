@@ -1,7 +1,9 @@
 "use client";
 
 import Link from "next/link";
+import type { CSSProperties } from "react";
 import { useEffect, useReducer } from "react";
+import { useThemeMode, type ThemeMode } from "@/app/lib/use-theme-mode";
 
 const BOARD_WIDTH = 10;
 const BOARD_HEIGHT = 20;
@@ -94,7 +96,7 @@ const ROTATIONS: Record<PieceType, number[][][]> = Object.fromEntries(
     const rot2 = rotateMatrix(rot1);
     const rot3 = rotateMatrix(rot2);
     return [type, [base, rot1, rot2, rot3]];
-  })
+  }),
 ) as Record<PieceType, number[][][]>;
 
 const SCORE_TABLE: Record<number, number> = {
@@ -103,6 +105,10 @@ const SCORE_TABLE: Record<number, number> = {
   3: 500,
   4: 800,
 };
+
+function rotateMatrix(matrix: number[][]) {
+  return Array.from({ length: 4 }, (_, x) => Array.from({ length: 4 }, (_, y) => matrix[3 - y][x]));
+}
 
 function createBoard() {
   return Array.from({ length: BOARD_WIDTH * BOARD_HEIGHT }, () => null as BoardCell);
@@ -113,16 +119,7 @@ function randomPieceType() {
 }
 
 function createPiece(type: PieceType): Piece {
-  return {
-    type,
-    rotation: 0,
-    x: 3,
-    y: 0,
-  };
-}
-
-function rotateMatrix(matrix: number[][]) {
-  return Array.from({ length: 4 }, (_, x) => Array.from({ length: 4 }, (_, y) => matrix[3 - y][x]));
+  return { type, rotation: 0, x: 3, y: 0 };
 }
 
 function getBlocks(piece: Piece) {
@@ -153,7 +150,7 @@ function canPlace(board: BoardCell[], piece: Piece) {
 function mergePiece(board: BoardCell[], piece: Piece) {
   const nextBoard = board.slice();
   getBlocks(piece).forEach(({ x, y }) => {
-    if (y >= 0 && y < BOARD_HEIGHT && x >= 0 && x < BOARD_WIDTH) {
+    if (x >= 0 && x < BOARD_WIDTH && y >= 0 && y < BOARD_HEIGHT) {
       nextBoard[y * BOARD_WIDTH + x] = piece.type;
     }
   });
@@ -168,23 +165,19 @@ function clearLines(board: BoardCell[]) {
     const slice = board.slice(row * BOARD_WIDTH, row * BOARD_WIDTH + BOARD_WIDTH);
     if (slice.every(Boolean)) {
       cleared += 1;
-      continue;
+    } else {
+      rows.push(slice);
     }
-
-    rows.push(slice);
   }
 
   while (rows.length < BOARD_HEIGHT) {
     rows.unshift(Array.from({ length: BOARD_WIDTH }, () => null));
   }
 
-  return {
-    board: rows.flat(),
-    cleared,
-  };
+  return { board: rows.flat(), cleared };
 }
 
-function spawnNextPiece(state: GameState, lockedPiece: Piece) {
+function spawnNextPiece(state: GameState, lockedPiece: Piece): GameState {
   const merged = mergePiece(state.board, lockedPiece);
   const clearedResult = clearLines(merged);
   const cleared = clearedResult.cleared;
@@ -203,7 +196,7 @@ function spawnNextPiece(state: GameState, lockedPiece: Piece) {
       score: state.score + scoreGain,
       lines,
       level,
-      status: "over" as const,
+      status: "over",
     };
   }
 
@@ -219,22 +212,9 @@ function spawnNextPiece(state: GameState, lockedPiece: Piece) {
 }
 
 function createInitialState(): GameState {
-  const firstType = randomPieceType();
+  const piece = createPiece(randomPieceType());
   const nextType = randomPieceType();
-  const piece = createPiece(firstType);
   const initialBoard = createBoard();
-
-  if (!canPlace(initialBoard, piece)) {
-    return {
-      board: initialBoard,
-      piece,
-      nextType,
-      score: 0,
-      lines: 0,
-      level: 1,
-      status: "over",
-    };
-  }
 
   return {
     board: initialBoard,
@@ -243,7 +223,7 @@ function createInitialState(): GameState {
     score: 0,
     lines: 0,
     level: 1,
-    status: "playing",
+    status: canPlace(initialBoard, piece) ? "playing" : "over",
   };
 }
 
@@ -350,7 +330,37 @@ function renderPreviewCells(type: PieceType) {
   return cells;
 }
 
+function getPageClass(theme: ThemeMode) {
+  return theme === "light"
+    ? "bg-[radial-gradient(circle_at_top_right,rgba(24,21,19,0.07),transparent_28%),linear-gradient(180deg,#f5f1e8_0%,#efe8db_55%,#f5f1e8_100%)]"
+    : "bg-[radial-gradient(circle_at_top_right,rgba(120,160,255,0.14),transparent_28%),linear-gradient(180deg,#050505_0%,#090909_55%,#050505_100%)]";
+}
+
+function surface(theme: ThemeMode, alpha = 0.72) {
+  return theme === "light" ? `rgba(255,255,255,${alpha})` : `rgba(255,255,255,0.03)`;
+}
+
+function boardBack(theme: ThemeMode): CSSProperties {
+  return { backgroundColor: theme === "light" ? "#e6dfd4" : "#161616" };
+}
+
+function boardInner(theme: ThemeMode): CSSProperties {
+  return { backgroundColor: theme === "light" ? "#d7cec1" : "#232323" };
+}
+
+function cellBack(theme: ThemeMode, type: PieceType | null): CSSProperties {
+  if (!type) {
+    return { backgroundColor: theme === "light" ? "rgba(24,21,19,0.05)" : "rgba(255,255,255,0.04)" };
+  }
+
+  return {
+    backgroundColor: COLORS[type],
+    boxShadow: theme === "light" ? "inset 0 1px 0 rgba(255,255,255,0.4)" : "inset 0 1px 0 rgba(255,255,255,0.16)",
+  };
+}
+
 export default function TetrisPage() {
+  const theme = useThemeMode();
   const [state, dispatch] = useReducer(reducer, undefined, createInitialState);
 
   useEffect(() => {
@@ -360,14 +370,13 @@ export default function TetrisPage() {
 
     const speed = Math.max(MIN_SPEED, BASE_SPEED - (state.level - 1) * SPEED_STEP);
     const timer = window.setInterval(() => dispatch({ type: "TICK" }), speed);
-
     return () => window.clearInterval(timer);
   }, [state.level, state.status]);
 
   useEffect(() => {
     function handleKeyDown(event: KeyboardEvent) {
       const key = event.key.toLowerCase();
-      if (["arrowleft", "arrowright", "arrowdown", "arrowup", " ", "a", "d", "s", "w", "z", "x", "p"].includes(key)) {
+      if (["arrowleft", "arrowright", "arrowdown", "arrowup", " ", "a", "d", "s", "w", "x", "p", "r"].includes(key)) {
         event.preventDefault();
       }
 
@@ -383,7 +392,7 @@ export default function TetrisPage() {
         dispatch({ type: "DROP" });
       } else if (key === "p") {
         dispatch({ type: "TOGGLE_PAUSE" });
-      } else if (key === "z") {
+      } else if (key === "r") {
         dispatch({ type: "RESET" });
       }
     }
@@ -399,39 +408,42 @@ export default function TetrisPage() {
     }
   });
 
+  const pageClass = getPageClass(theme);
+  const panelSurface = surface(theme, 0.72);
+
   return (
-    <div className="min-h-screen bg-[radial-gradient(circle_at_top_right,rgba(120,160,255,0.14),transparent_28%),linear-gradient(180deg,#050505_0%,#090909_55%,#050505_100%)] pt-20 text-white">
+    <div className={`min-h-screen pt-20 text-[var(--app-fg)] transition-colors duration-300 ${pageClass}`}>
       <section className="mx-auto grid max-w-7xl gap-10 px-6 py-16 lg:grid-cols-[0.92fr_1.08fr] lg:items-start">
         <div className="max-w-xl">
           <Link
             href="/fun"
-            className="inline-flex rounded-full border border-white/10 px-4 py-2 text-sm text-white/60 transition-colors hover:border-white/20 hover:text-white"
+            className="inline-flex rounded-full border border-[var(--app-border)] px-4 py-2 text-sm text-[var(--app-muted)] transition-colors hover:border-[var(--app-border-strong)] hover:text-[var(--app-fg)]"
           >
             返回 Fun
           </Link>
 
-          <p className="mt-8 text-xs uppercase tracking-[0.3em] text-white/30">Tetris</p>
+          <p className="mt-8 text-xs uppercase tracking-[0.3em] text-[var(--app-muted)]">Tetris</p>
           <h1 className="mt-4 text-5xl font-semibold tracking-tight md:text-7xl">Drop clean. Clear lines.</h1>
-          <p className="mt-6 text-sm leading-7 text-white/45 md:text-base">
-            俄罗斯方块做成了一个极简的桌面式游戏页。方向键移动，空格硬降，P 暂停，R 重开。
+          <p className="mt-6 text-sm leading-7 text-[var(--app-muted)] md:text-base">
+            方向键移动，空格硬降，P 暂停，R 重开。界面现在会跟着站点主题一起切换。
           </p>
 
-          <div className="mt-8 flex flex-wrap gap-3 text-xs text-white/45">
-            <span className="rounded-full border border-white/10 px-3 py-2">Arrow keys</span>
-            <span className="rounded-full border border-white/10 px-3 py-2">Space drop</span>
-            <span className="rounded-full border border-white/10 px-3 py-2">P pause</span>
-            <span className="rounded-full border border-white/10 px-3 py-2">R restart</span>
+          <div className="mt-8 flex flex-wrap gap-3 text-xs text-[var(--app-muted)]">
+            <span className="rounded-full border border-[var(--app-border)] px-3 py-2">Arrow keys</span>
+            <span className="rounded-full border border-[var(--app-border)] px-3 py-2">Space drop</span>
+            <span className="rounded-full border border-[var(--app-border)] px-3 py-2">P pause</span>
+            <span className="rounded-full border border-[var(--app-border)] px-3 py-2">R restart</span>
           </div>
 
           <div className="mt-10 grid grid-cols-3 gap-3">
-            <Stat label="Score" value={state.score} />
-            <Stat label="Lines" value={state.lines} />
-            <Stat label="Level" value={state.level} />
+            <Stat label="Score" value={state.score} surface={panelSurface} />
+            <Stat label="Lines" value={state.lines} surface={panelSurface} />
+            <Stat label="Level" value={state.level} surface={panelSurface} />
           </div>
 
-          <div className="mt-8 rounded-[28px] border border-white/10 bg-white/[0.03] p-5">
-            <p className="text-xs uppercase tracking-[0.22em] text-white/30">Controls</p>
-            <div className="mt-4 grid gap-3 text-sm text-white/55 sm:grid-cols-2">
+          <div className="mt-8 rounded-[28px] border border-[var(--app-border)] p-5" style={{ backgroundColor: panelSurface }}>
+            <p className="text-xs uppercase tracking-[0.22em] text-[var(--app-muted)]">Controls</p>
+            <div className="mt-4 grid gap-3 text-sm text-[var(--app-muted)] sm:grid-cols-2">
               <Control label="Move" value="Arrow keys / A D" />
               <Control label="Soft drop" value="Arrow Down / S" />
               <Control label="Rotate" value="Arrow Up / W / X" />
@@ -442,110 +454,69 @@ export default function TetrisPage() {
           </div>
 
           <div className="mt-8 flex flex-wrap gap-3">
-            <button
-              type="button"
-              onClick={() => dispatch({ type: "MOVE", dx: -1, dy: 0 })}
-              className="rounded-full border border-white/10 px-4 py-2 text-sm text-white/75 transition-colors hover:border-white/20 hover:text-white"
-            >
-              ← Left
-            </button>
-            <button
-              type="button"
-              onClick={() => dispatch({ type: "MOVE", dx: 1, dy: 0 })}
-              className="rounded-full border border-white/10 px-4 py-2 text-sm text-white/75 transition-colors hover:border-white/20 hover:text-white"
-            >
-              Right →
-            </button>
-            <button
-              type="button"
-              onClick={() => dispatch({ type: "ROTATE" })}
-              className="rounded-full border border-white/10 px-4 py-2 text-sm text-white/75 transition-colors hover:border-white/20 hover:text-white"
-            >
-              Rotate
-            </button>
-            <button
-              type="button"
-              onClick={() => dispatch({ type: "DROP" })}
-              className="rounded-full border border-white/10 px-4 py-2 text-sm text-white/75 transition-colors hover:border-white/20 hover:text-white"
-            >
-              Drop
-            </button>
-            <button
-              type="button"
-              onClick={() => dispatch({ type: "TOGGLE_PAUSE" })}
-              className="rounded-full border border-white/10 px-4 py-2 text-sm text-white/75 transition-colors hover:border-white/20 hover:text-white"
-            >
-              {state.status === "paused" ? "Resume" : "Pause"}
-            </button>
+            <ControlButton label="Left" onClick={() => dispatch({ type: "MOVE", dx: -1, dy: 0 })} />
+            <ControlButton label="Right" onClick={() => dispatch({ type: "MOVE", dx: 1, dy: 0 })} />
+            <ControlButton label="Rotate" onClick={() => dispatch({ type: "ROTATE" })} />
+            <ControlButton label="Drop" onClick={() => dispatch({ type: "DROP" })} />
+            <ControlButton label={state.status === "paused" ? "Resume" : "Pause"} onClick={() => dispatch({ type: "TOGGLE_PAUSE" })} />
             <button
               type="button"
               onClick={() => dispatch({ type: "RESET" })}
-              className="rounded-full bg-white px-4 py-2 text-sm font-medium text-black transition-colors hover:bg-white/90"
+              className="rounded-full bg-[var(--app-fg)] px-4 py-2 text-sm font-medium text-[var(--app-bg)] transition-colors hover:opacity-90"
             >
               Restart
             </button>
           </div>
 
-          <p className="mt-6 text-sm text-white/35">
+          <p className="mt-6 text-sm text-[var(--app-muted)]">
             {state.status === "over" ? "Game over. 重新开始再来一局。" : "把每一列保持干净，先清线，再追更高等级。"}
           </p>
         </div>
 
         <div className="relative">
-          <div className="absolute -inset-6 rounded-[36px] bg-[radial-gradient(circle,rgba(120,160,255,0.14),transparent_60%)] blur-2xl" />
-          <div className="relative overflow-hidden rounded-[34px] border border-white/10 bg-white/[0.03] p-4 shadow-2xl shadow-black/40 md:p-6">
+          <div className="absolute -inset-6 rounded-[36px] bg-[radial-gradient(circle,rgba(120,160,255,0.12),transparent_60%)] blur-2xl" />
+          <div
+            className="relative overflow-hidden rounded-[34px] border border-[var(--app-border)] p-4 md:p-6"
+            style={{ backgroundColor: panelSurface, boxShadow: "0 30px 80px rgba(0,0,0,0.18)" }}
+          >
             <div className="mb-4 flex items-center justify-between gap-4">
               <div>
-                <p className="text-xs uppercase tracking-[0.22em] text-white/30">Playfield</p>
+                <p className="text-xs uppercase tracking-[0.22em] text-[var(--app-muted)]">Playfield</p>
                 <h2 className="mt-2 text-lg font-semibold">Stack with intent</h2>
               </div>
-              <div className="flex flex-wrap gap-2 text-[11px] uppercase tracking-[0.22em] text-white/30">
-                {state.status === "paused" ? (
-                  <span className="rounded-full border border-white/10 px-3 py-2 text-white/80">Paused</span>
-                ) : null}
-                {state.status === "over" ? (
-                  <span className="rounded-full border border-white/10 px-3 py-2 text-white/80">Game over</span>
-                ) : null}
+              <div className="flex flex-wrap gap-2 text-[11px] uppercase tracking-[0.22em] text-[var(--app-muted)]">
+                {state.status === "paused" ? <Badge>Paused</Badge> : null}
+                {state.status === "over" ? <Badge>Game over</Badge> : null}
               </div>
             </div>
 
             <div className="grid gap-4 xl:grid-cols-[1fr_140px]">
-              <div className="rounded-[28px] bg-[#161616] p-3 md:p-4">
-                <div className="grid aspect-[1/2] grid-cols-10 gap-[2px] rounded-[22px] bg-[#232323] p-2">
-                  {displayBoard.map((cell, index) => {
-                    const type = cell ?? "O";
-                    const filled = Boolean(cell);
-                    return (
-                      <div
-                        key={index}
-                        className={`rounded-[4px] border border-white/5 transition-colors ${
-                          filled ? "shadow-[inset_0_1px_0_rgba(255,255,255,0.16)]" : "bg-black/25"
-                        }`}
-                        style={{
-                          backgroundColor: filled ? COLORS[type] : "rgba(255,255,255,0.035)",
-                        }}
-                      />
-                    );
-                  })}
+              <div className="rounded-[28px] p-3 md:p-4" style={boardBack(theme)}>
+                <div className="grid aspect-[1/2] grid-cols-10 gap-[2px] rounded-[22px] p-2" style={boardInner(theme)}>
+                  {displayBoard.map((cell, index) => (
+                    <div
+                      key={index}
+                      className="rounded-[4px] border border-white/5 transition-colors"
+                      style={cellBack(theme, cell)}
+                    />
+                  ))}
                 </div>
               </div>
 
-              <div className="rounded-[28px] border border-white/10 bg-white/[0.03] p-4">
-                <p className="text-xs uppercase tracking-[0.22em] text-white/30">Next</p>
-                <div className="mt-4 rounded-[20px] bg-[#151515] p-3">
-                  <div className="grid grid-cols-4 gap-2">
+              <div className="rounded-[28px] border border-[var(--app-border)] p-4" style={{ backgroundColor: surface(theme, 0.55) }}>
+                <p className="text-xs uppercase tracking-[0.22em] text-[var(--app-muted)]">Next</p>
+                <div className="mt-4 rounded-[20px] p-3" style={boardBack(theme)}>
+                  <div className="grid grid-cols-4 gap-2" style={boardInner(theme)}>
                     {renderPreviewCells(state.nextType).map((cell) => (
                       <div
                         key={cell.key}
                         className="aspect-square rounded-[4px] border border-white/5"
-                        style={{
-                          backgroundColor: cell.filled ? COLORS[state.nextType] : "rgba(255,255,255,0.04)",
-                        }}
+                        style={cell.filled ? cellBack(theme, state.nextType) : cellBack(theme, null)}
                       />
                     ))}
                   </div>
                 </div>
-                <div className="mt-5 space-y-3 text-sm text-white/45">
+                <div className="mt-5 space-y-3 text-sm text-[var(--app-muted)]">
                   <p>Speed: {Math.max(MIN_SPEED, BASE_SPEED - (state.level - 1) * SPEED_STEP)} ms</p>
                   <p>Goal: clear lines and keep climbing.</p>
                 </div>
@@ -558,10 +529,10 @@ export default function TetrisPage() {
   );
 }
 
-function Stat({ label, value }: { label: string; value: number }) {
+function Stat({ label, value, surface }: { label: string; value: number; surface: string }) {
   return (
-    <div className="rounded-[22px] border border-white/10 bg-white/[0.03] p-4">
-      <p className="text-[11px] uppercase tracking-[0.22em] text-white/30">{label}</p>
+    <div className="rounded-[22px] border border-[var(--app-border)] p-4" style={{ backgroundColor: surface }}>
+      <p className="text-[11px] uppercase tracking-[0.22em] text-[var(--app-muted)]">{label}</p>
       <p className="mt-2 text-3xl font-semibold">{value.toLocaleString("en-US")}</p>
     </div>
   );
@@ -569,9 +540,25 @@ function Stat({ label, value }: { label: string; value: number }) {
 
 function Control({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-2xl border border-white/10 bg-black/25 px-4 py-3">
-      <p className="text-[11px] uppercase tracking-[0.22em] text-white/30">{label}</p>
+    <div className="rounded-2xl border border-[var(--app-border)] px-4 py-3">
+      <p className="text-[11px] uppercase tracking-[0.22em] text-[var(--app-muted)]">{label}</p>
       <p className="mt-2">{value}</p>
     </div>
   );
+}
+
+function ControlButton({ label, onClick }: { label: string; onClick: () => void }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className="rounded-full border border-[var(--app-border)] px-4 py-2 text-sm text-[var(--app-fg)]/80 transition-colors hover:border-[var(--app-border-strong)] hover:text-[var(--app-fg)]"
+    >
+      {label}
+    </button>
+  );
+}
+
+function Badge({ children }: { children: string }) {
+  return <span className="rounded-full border border-[var(--app-border)] px-3 py-2">{children}</span>;
 }

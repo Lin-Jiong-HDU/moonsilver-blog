@@ -71,7 +71,7 @@ function Divider() {
 export default function HomePage() {
   return (
     <div className="bg-black text-white">
-      <section className="relative flex h-screen flex-col items-center justify-center overflow-hidden">
+      <section className="relative flex min-h-[calc(100svh-5rem)] flex-col items-center justify-center">
         <div className="pointer-events-none absolute inset-0 overflow-hidden">
           <div className="home-orb-primary absolute left-1/2 top-1/2 h-[38rem] w-[38rem] rounded-full bg-[radial-gradient(circle,rgba(255,255,255,0.05)_0%,transparent_70%)]" />
           <div className="home-orb-secondary absolute left-1/2 top-1/2 h-[58rem] w-[58rem] rounded-full bg-[radial-gradient(circle,rgba(255,255,255,0.02)_0%,transparent_70%)]" />
