@@ -1,0 +1,8 @@
+{
+  "title": "本地写作，推上去就发布",
+  "excerpt": "博客现在改成文件驱动的模式了，文章只要放在 content/blog 里就会被站点读取。",
+  "publishedAt": "2026-04-23",
+  "updatedAt": "2026-04-23",
+  "tags": ["博客", "本地写作", "发布流程"],
+  "contentHtml": "<p>以后这个博客不再走站内编辑器了。你只要在 <code>content/blog</code> 里新增一个 JSON 文件，写完以后提交并推送，站点在构建时就会直接读取它。</p><h2>怎么写</h2><ul><li>每篇文章一个 JSON 文件</li><li>文件名就是文章 slug</li><li>正文直接写在 <code>contentHtml</code> 里</li></ul><p>这样改完以后，博客的内容就更适合长期维护，也更符合“本地写好再发布”的流程。</p>"
+}

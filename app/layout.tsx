@@ -6,10 +6,10 @@ import { SiteNavbar } from "@/app/components/site-navbar";
 
 export const metadata: Metadata = {
   title: {
-    default: "Portfolio",
-    template: "%s | Portfolio",
+    default: "MOONSILVER",
+    template: "%s | MOONSILVER",
   },
-  description: "Portfolio website",
+  description: "MOONSILVER website",
 };
 
 export default function RootLayout({

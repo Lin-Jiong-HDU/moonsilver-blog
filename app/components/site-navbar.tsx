@@ -51,7 +51,7 @@ export function SiteNavbar() {
             href="/"
             className="select-none text-sm font-semibold uppercase tracking-widest text-[var(--app-fg)]"
           >
-            Portfolio
+            MOONSILVER
           </Link>
 
           <button

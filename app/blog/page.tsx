@@ -1,11 +1,78 @@
 import type { Metadata } from "next";
-import { BlogClient } from "@/app/blog/blog-client";
+import Link from "next/link";
+import { getAllBlogPosts, formatBlogDate } from "@/app/lib/blog-content";
 
 export const metadata: Metadata = {
   title: "博客",
-  description: "站内博客页，文章由站点服务器统一保存。",
+  description: "本地文件驱动的博客目录，只需在 content/blog 里新增文章并推送。",
 };
 
-export default function BlogPage() {
-  return <BlogClient />;
+export default async function BlogPage() {
+  const posts = await getAllBlogPosts();
+
+  return (
+    <div className="min-h-screen bg-[var(--app-bg)] pt-24 text-[var(--app-fg)] transition-colors duration-300">
+      <section className="mx-auto max-w-7xl px-6 py-16">
+        <div className="max-w-3xl">
+          <p className="text-xs uppercase tracking-[0.25em] text-[var(--app-muted)]">Blog</p>
+          <h1 className="mt-4 text-4xl font-bold tracking-tight md:text-5xl">本地写作的博客</h1>
+          <p className="mt-4 text-sm leading-relaxed text-[var(--app-muted)] md:text-base">
+            这里不再提供站内编辑器。以后你只需要在 `content/blog` 里新增一个 JSON 文件，
+            本地写好、提交、推上去，博客内容就会跟着一起发布。
+          </p>
+        </div>
+
+        <div className="mt-10 flex flex-wrap gap-3 text-xs text-[var(--app-muted)]">
+          <span className="rounded-full border border-[var(--app-border)] px-3 py-2">Local first</span>
+          <span className="rounded-full border border-[var(--app-border)] px-3 py-2">
+            子文件夹：content/blog
+          </span>
+          <span className="rounded-full border border-[var(--app-border)] px-3 py-2">
+            每篇文章一个 JSON 文件
+          </span>
+        </div>
+      </section>
+
+      <section className="mx-auto max-w-7xl px-6 pb-24">
+        {posts.length > 0 ? (
+          <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+            {posts.map((post) => (
+              <Link
+                key={post.slug}
+                href={`/blog/${post.slug}`}
+                className="group rounded-[28px] border border-[var(--app-border)] bg-[var(--app-surface)]/70 p-6 transition-colors hover:border-[var(--app-border-strong)] hover:bg-[var(--app-surface-strong)]"
+              >
+                <p className="text-xs uppercase tracking-[0.2em] text-[var(--app-muted)]">
+                  {formatBlogDate(post.publishedAt)}
+                </p>
+                <h2 className="mt-4 text-2xl font-semibold tracking-tight text-[var(--app-fg)]">
+                  {post.title}
+                </h2>
+                <p className="mt-3 text-sm leading-relaxed text-[var(--app-muted)]">{post.excerpt}</p>
+
+                <div className="mt-6 flex flex-wrap gap-2">
+                  {post.tags.map((tag) => (
+                    <span
+                      key={tag}
+                      className="rounded-full border border-[var(--app-border)] px-3 py-1 text-[11px] uppercase tracking-[0.18em] text-[var(--app-muted)]"
+                    >
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+
+                <span className="mt-6 inline-flex text-sm text-[var(--app-fg)]/70 transition-colors group-hover:text-[var(--app-fg)]">
+                  阅读文章
+                </span>
+              </Link>
+            ))}
+          </div>
+        ) : (
+          <div className="rounded-[28px] border border-dashed border-[var(--app-border)] bg-[var(--app-surface)]/60 p-10 text-sm text-[var(--app-muted)]">
+            还没有文章。去 `content/blog` 里新增一个 JSON 文件吧。
+          </div>
+        )}
+      </section>
+    </div>
+  );
 }
