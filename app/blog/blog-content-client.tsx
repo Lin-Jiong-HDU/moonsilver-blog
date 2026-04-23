@@ -1,30 +1,48 @@
 "use client";
 
-import { useState } from "react";
 import Link from "next/link";
+import { useMemo, useState } from "react";
 import SearchBar from "@/app/components/search-bar";
-import { formatBlogDate } from "@/app/lib/blog-content";
 import type { BlogPost } from "@/app/lib/blog-content";
 
 interface BlogContentClientProps {
   posts: BlogPost[];
 }
 
+function normalize(value: string) {
+  return value.trim().toLowerCase();
+}
+
+function formatBlogDate(value: string) {
+  return new Intl.DateTimeFormat("zh-CN", {
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).format(new Date(value));
+}
+
 export default function BlogContentClient({ posts }: BlogContentClientProps) {
   const [searchQuery, setSearchQuery] = useState("");
 
-  const filteredPosts = posts.filter((post) =>
-    post.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    post.excerpt.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    post.tags.some((tag) => tag.toLowerCase().includes(searchQuery.toLowerCase()))
-  );
+  const filteredPosts = useMemo(() => {
+    const query = normalize(searchQuery);
+    if (!query) {
+      return posts;
+    }
+
+    return posts.filter((post) => {
+      const haystack = [post.title, post.excerpt, post.tags.join(" ")].join(" ").toLowerCase();
+      return haystack.includes(query);
+    });
+  }, [posts, searchQuery]);
 
   return (
     <section className="mx-auto max-w-7xl px-6 pb-24">
       <div className="mb-8">
         <SearchBar
+          value={searchQuery}
+          onChange={setSearchQuery}
           placeholder="搜索文章..."
-          onSearch={setSearchQuery}
         />
       </div>
 

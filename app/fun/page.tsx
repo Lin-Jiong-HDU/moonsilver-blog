@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useMemo, useState } from "react";
 import Link from "next/link";
 import SearchBar from "@/app/components/search-bar";
 
@@ -32,40 +32,41 @@ const entries = [
   {
     href: "/fun/gomoku",
     title: "五子棋",
-    description: "连成五颗同色棋子即获胜",
+    description: "连成五颗同色棋子即可获胜",
     note: "Game",
   },
 ];
 
-function SectionLabel({ children }: { children: string }) {
-  return (
-    <span className="text-xs font-medium uppercase tracking-[0.25em] text-[var(--app-muted)]">
-      {children}
-    </span>
-  );
-}
-
-function Divider() {
-  return <div className="h-px bg-[var(--app-border)]" />;
+function normalize(value: string) {
+  return value.trim().toLowerCase();
 }
 
 export default function FunPage() {
   const [searchQuery, setSearchQuery] = useState("");
 
-  const filteredEntries = entries.filter((entry) =>
-    entry.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    entry.description.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const filteredEntries = useMemo(() => {
+    const query = normalize(searchQuery);
+    if (!query) {
+      return entries;
+    }
+
+    return entries.filter((entry) => {
+      const haystack = [entry.title, entry.description, entry.note].join(" ").toLowerCase();
+      return haystack.includes(query);
+    });
+  }, [searchQuery]);
 
   return (
     <div className="min-h-screen bg-[var(--app-bg)] pt-20 text-[var(--app-fg)] transition-colors duration-300">
       <section className="mx-auto max-w-7xl px-6 py-16">
         <div className="grid gap-12 lg:grid-cols-[1fr_1.05fr] lg:items-end">
           <div className="max-w-2xl">
-            <SectionLabel>Entertainment</SectionLabel>
+            <span className="text-xs font-medium uppercase tracking-[0.25em] text-[var(--app-muted)]">
+              Entertainment
+            </span>
             <h1 className="mt-4 text-5xl font-bold tracking-tight md:text-7xl">Fun</h1>
             <p className="mt-6 max-w-xl text-sm leading-7 text-[var(--app-muted)] md:text-base">
-              点进去就能玩
+              点进去就能玩。
             </p>
             <div className="mt-8 flex flex-wrap gap-3 text-xs text-[var(--app-muted)]">
               <span className="rounded-full border border-[var(--app-border)] px-3 py-2">Local games</span>
@@ -74,8 +75,9 @@ export default function FunPage() {
             </div>
             <div className="mt-8">
               <SearchBar
+                value={searchQuery}
+                onChange={setSearchQuery}
                 placeholder="搜索游戏..."
-                onSearch={setSearchQuery}
               />
             </div>
           </div>
@@ -124,8 +126,9 @@ export default function FunPage() {
               <Link
                 key={entry.href}
                 href={entry.href}
-                className={`group p-6 transition-colors hover:bg-[var(--app-surface)]/80 ${index < filteredEntries.length - 1 ? "md:border-r md:border-[var(--app-border)]" : ""
-                  } ${index < 3 ? "border-b border-[var(--app-border)] md:border-b-0" : ""}`}
+                className={`group p-6 transition-colors hover:bg-[var(--app-surface)]/80 ${
+                  index < filteredEntries.length - 1 ? "md:border-r md:border-[var(--app-border)]" : ""
+                } ${index < 3 ? "border-b border-[var(--app-border)] md:border-b-0" : ""}`}
               >
                 <p className="text-xs uppercase tracking-[0.22em] text-[var(--app-muted)]">{entry.note}</p>
                 <h2 className="mt-4 text-3xl font-semibold tracking-tight">{entry.title}</h2>
@@ -141,7 +144,7 @@ export default function FunPage() {
         </div>
 
         <div className="mt-14">
-          <Divider />
+          <div className="h-px bg-[var(--app-border)]" />
           <p className="mt-5 text-xs uppercase tracking-[0.25em] text-[var(--app-muted)]">
             Pick a module, then keep moving.
           </p>
