@@ -1,12 +1,31 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { cookies } from "next/headers";
 import { notFound } from "next/navigation";
-import { formatBlogDate, getAllBlogPosts, getBlogPostBySlug } from "@/app/lib/blog-content";
+import { getAllBlogPosts, getBlogPostBySlug } from "@/app/lib/blog-content";
+import {
+  LANGUAGE_COOKIE,
+  type SiteLanguage,
+  normalizeSiteLanguage,
+} from "@/app/lib/site-language";
 
 type PageParams = {
   params: Promise<{
     slug: string;
   }>;
+};
+
+const copy: Record<SiteLanguage, { back: string; missing: string; dateLocale: string }> = {
+  zh: {
+    back: "返回博客",
+    missing: "博客文章",
+    dateLocale: "zh-CN",
+  },
+  en: {
+    back: "Back to blog",
+    missing: "Blog post",
+    dateLocale: "en-US",
+  },
 };
 
 export async function generateStaticParams() {
@@ -20,7 +39,7 @@ export async function generateMetadata({ params }: PageParams): Promise<Metadata
 
   if (!post) {
     return {
-      title: "博客文章",
+      title: "Blog post",
     };
   }
 
@@ -31,6 +50,8 @@ export async function generateMetadata({ params }: PageParams): Promise<Metadata
 }
 
 export default async function BlogPostPage({ params }: PageParams) {
+  const storedLanguage = cookies().get(LANGUAGE_COOKIE)?.value;
+  const language = normalizeSiteLanguage(storedLanguage);
   const { slug } = await params;
   const post = await getBlogPostBySlug(slug);
 
@@ -45,12 +66,16 @@ export default async function BlogPostPage({ params }: PageParams) {
           href="/blog"
           className="inline-flex rounded-full border border-[var(--app-border)] px-4 py-2 text-sm text-[var(--app-muted)] transition-colors hover:border-[var(--app-border-strong)] hover:text-[var(--app-fg)]"
         >
-          返回博客
+          {copy[language].back}
         </Link>
 
         <article className="mt-8 rounded-[32px] border border-[var(--app-border)] bg-[var(--app-surface)]/70 p-6 md:p-10">
           <p className="text-xs uppercase tracking-[0.25em] text-[var(--app-muted)]">
-            {formatBlogDate(post.publishedAt)}
+            {new Intl.DateTimeFormat(copy[language].dateLocale, {
+              year: "numeric",
+              month: "2-digit",
+              day: "2-digit",
+            }).format(new Date(post.publishedAt))}
           </p>
           <h1 className="mt-4 text-4xl font-bold tracking-tight md:text-5xl">{post.title}</h1>
           <p className="mt-4 max-w-3xl text-sm leading-relaxed text-[var(--app-muted)] md:text-base">

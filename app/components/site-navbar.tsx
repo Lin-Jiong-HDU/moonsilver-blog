@@ -1,16 +1,43 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
+import { usePathname, useRouter } from "next/navigation";
+import { useEffect, useMemo, useState } from "react";
 import { useAuth } from "@/app/components/auth-provider";
+import { useSiteLanguage } from "@/app/components/language-provider";
+import { htmlLang } from "@/app/lib/site-language";
+
+const navLabels = {
+  zh: {
+    home: "首页",
+    fun: "娱乐",
+    blog: "博客",
+    contest: "竞赛专区",
+    login: "登录",
+    logout: "退出",
+    themeDark: "切换到白天模式",
+    themeLight: "切换到黑夜模式",
+    language: "EN",
+  },
+  en: {
+    home: "Home",
+    fun: "Fun",
+    blog: "Blog",
+    contest: "Contest",
+    login: "Log in",
+    logout: "Log out",
+    themeDark: "Switch to light mode",
+    themeLight: "Switch to dark mode",
+    language: "中",
+  },
+} as const;
 
 const links = [
-  { href: "/", label: "首页" },
-  { href: "/fun", label: "娱乐" },
-  { href: "/blog", label: "博客" },
-  { href: "/contest", label: "竞赛专区" },
-];
+  { href: "/", key: "home" },
+  { href: "/fun", key: "fun" },
+  { href: "/blog", key: "blog" },
+  { href: "/contest", key: "contest" },
+] as const;
 
 function isActive(pathname: string, href: string) {
   return pathname === href;
@@ -31,7 +58,9 @@ function getInitialTheme(): "dark" | "light" {
 
 export function SiteNavbar() {
   const pathname = usePathname();
+  const router = useRouter();
   const { user, logout } = useAuth();
+  const { language, setLanguage } = useSiteLanguage();
   const [theme, setTheme] = useState<"dark" | "light">(getInitialTheme);
 
   useEffect(() => {
@@ -39,9 +68,20 @@ export function SiteNavbar() {
     window.localStorage.setItem("site-theme", theme);
   }, [theme]);
 
+  useEffect(() => {
+    document.documentElement.lang = htmlLang(language);
+  }, [language]);
+
   function toggleTheme() {
     setTheme((current) => (current === "dark" ? "light" : "dark"));
   }
+
+  function toggleLanguage() {
+    setLanguage(language === "en" ? "zh" : "en");
+    router.refresh();
+  }
+
+  const labels = useMemo(() => navLabels[language], [language]);
 
   return (
     <nav className="fixed left-0 right-0 top-0 z-50 border-b border-[var(--app-border)] bg-[var(--app-surface)]/85 px-6 py-4 backdrop-blur-md transition-colors duration-300 md:px-12">
@@ -54,14 +94,24 @@ export function SiteNavbar() {
             MOONSILVER
           </Link>
 
-          <button
-            type="button"
-            onClick={toggleTheme}
-            aria-label={theme === "dark" ? "切换到白天模式" : "切换到黑夜模式"}
-            className="rounded-full border border-[var(--app-border)] px-3 py-2 text-xs text-[var(--app-muted)] transition-colors hover:border-[var(--app-border-strong)] hover:text-[var(--app-fg)] lg:hidden"
-          >
-            <span aria-hidden="true">{theme === "dark" ? "☀" : "☾"}</span>
-          </button>
+          <div className="flex items-center gap-2 lg:hidden">
+            <button
+              type="button"
+              onClick={toggleLanguage}
+              aria-label={language === "en" ? "Switch to Chinese" : "Switch to English"}
+              className="rounded-full border border-[var(--app-border)] px-3 py-2 text-xs text-[var(--app-muted)] transition-colors hover:border-[var(--app-border-strong)] hover:text-[var(--app-fg)]"
+            >
+              {labels.language}
+            </button>
+            <button
+              type="button"
+              onClick={toggleTheme}
+              aria-label={theme === "dark" ? labels.themeDark : labels.themeLight}
+              className="rounded-full border border-[var(--app-border)] px-3 py-2 text-xs text-[var(--app-muted)] transition-colors hover:border-[var(--app-border-strong)] hover:text-[var(--app-fg)]"
+            >
+              <span aria-hidden="true">{theme === "dark" ? "☾" : "☀"}</span>
+            </button>
+          </div>
         </div>
 
         <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-end">
@@ -79,7 +129,7 @@ export function SiteNavbar() {
                         : "text-[var(--app-muted)] hover:text-[var(--app-fg)]"
                     }`}
                   >
-                    {link.label}
+                    {labels[link.key]}
                     {active ? (
                       <span className="absolute -bottom-1 left-0 right-0 h-px bg-[var(--app-fg)]" />
                     ) : null}
@@ -94,7 +144,7 @@ export function SiteNavbar() {
               href="/account"
               className="rounded-full border border-[var(--app-border)] px-3 py-2 text-xs text-[var(--app-muted)] transition-colors hover:border-[var(--app-border-strong)] hover:text-[var(--app-fg)]"
             >
-              {user ? user.username : "登录"}
+              {user ? user.username : labels.login}
             </Link>
             {user ? (
               <button
@@ -102,16 +152,24 @@ export function SiteNavbar() {
                 onClick={logout}
                 className="rounded-full border border-[var(--app-border)] px-3 py-2 text-xs text-[var(--app-muted)] transition-colors hover:border-[var(--app-border-strong)] hover:text-[var(--app-fg)]"
               >
-                退出
+                {labels.logout}
               </button>
             ) : null}
             <button
               type="button"
-              onClick={toggleTheme}
-              aria-label={theme === "dark" ? "切换到白天模式" : "切换到黑夜模式"}
+              onClick={toggleLanguage}
+              aria-label={language === "en" ? "Switch to Chinese" : "Switch to English"}
               className="hidden rounded-full border border-[var(--app-border)] px-3 py-2 text-xs text-[var(--app-muted)] transition-colors hover:border-[var(--app-border-strong)] hover:text-[var(--app-fg)] lg:inline-flex"
             >
-              <span aria-hidden="true">{theme === "dark" ? "☀" : "☾"}</span>
+              {labels.language}
+            </button>
+            <button
+              type="button"
+              onClick={toggleTheme}
+              aria-label={theme === "dark" ? labels.themeDark : labels.themeLight}
+              className="hidden rounded-full border border-[var(--app-border)] px-3 py-2 text-xs text-[var(--app-muted)] transition-colors hover:border-[var(--app-border-strong)] hover:text-[var(--app-fg)] lg:inline-flex"
+            >
+              <span aria-hidden="true">{theme === "dark" ? "☾" : "☀"}</span>
             </button>
           </div>
         </div>
