@@ -7,7 +7,6 @@ import {
   dimensions,
   getAbilityById,
   normalizedQuestions,
-  systemOverview,
 } from "@/app/jobti/jobti-data";
 import { calculateJobtiResult, createEmptyAnswers } from "@/app/jobti/jobti-engine";
 
@@ -94,38 +93,8 @@ export function JobtiClient() {
           <SectionLabel>Entertainment</SectionLabel>
           <h1 className="mt-4 text-4xl font-bold md:text-5xl">Jobti</h1>
           <p className="mt-4 max-w-2xl text-sm leading-relaxed text-white/40">
-            一个放在网站娱乐区里的职业测绘小游戏。它会根据 80 道题、16 种职业画像和岗位向量，
-            给出更细的类型结果与岗位匹配。
+            一个轻量的职业向量小游戏。答完题后会生成类型结果和岗位匹配。
           </p>
-
-          <div className="mt-12 grid gap-4 md:grid-cols-3">
-            <div className="rounded-2xl border border-white/8 bg-white/[0.02] p-6">
-              <p className="text-xs uppercase tracking-[0.2em] text-white/30">Question Bank</p>
-              <p className="mt-4 text-3xl font-semibold text-white">{normalizedQuestions.length}</p>
-              <p className="mt-2 text-sm leading-relaxed text-white/40">双向题，覆盖四个维度。</p>
-            </div>
-            <div className="rounded-2xl border border-white/8 bg-white/[0.02] p-6">
-              <p className="text-xs uppercase tracking-[0.2em] text-white/30">Career Types</p>
-              <p className="mt-4 text-3xl font-semibold text-white">{careerTypes.length}</p>
-              <p className="mt-2 text-sm leading-relaxed text-white/40">类型更细，不容易全落到同一种。</p>
-            </div>
-            <div className="rounded-2xl border border-white/8 bg-white/[0.02] p-6">
-              <p className="text-xs uppercase tracking-[0.2em] text-white/30">System</p>
-              <p className="mt-4 text-3xl font-semibold text-white">V16</p>
-              <p className="mt-2 text-sm leading-relaxed text-white/40">
-                当前模块直接读取整套 JSON 数据，内容完整且可独立运行。
-              </p>
-            </div>
-          </div>
-
-          <div className="mt-16 grid gap-4 md:grid-cols-2">
-            {systemOverview.slice(0, 4).map((item) => (
-              <div key={item.section} className="rounded-2xl border border-white/8 bg-white/[0.02] p-6">
-                <p className="text-sm font-medium text-white">{item.section}</p>
-                <p className="mt-3 text-sm leading-relaxed text-white/40">{item.content}</p>
-              </div>
-            ))}
-          </div>
 
           <div className="mt-16 flex flex-wrap gap-3">
             <button
@@ -141,27 +110,6 @@ export function JobtiClient() {
             >
               返回娱乐区
             </Link>
-          </div>
-        </section>
-
-        <section className="mx-auto max-w-4xl px-6 pb-24">
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-            {dimensions.map((dimension) => (
-              <div key={dimension.dimension} className="rounded-2xl border border-white/8 p-6">
-                <p className="text-xs uppercase tracking-[0.2em] text-white/30">
-                  {dimension.left_letter}/{dimension.right_letter}
-                </p>
-                <h2 className="mt-3 text-xl font-semibold text-white">
-                  {dimension.left_name_cn} / {dimension.right_name_cn}
-                </h2>
-                <p className="mt-3 text-sm leading-relaxed text-white/40">
-                  {dimension.left_description}
-                </p>
-                <p className="mt-2 text-sm leading-relaxed text-white/40">
-                  {dimension.right_description}
-                </p>
-              </div>
-            ))}
           </div>
         </section>
 
