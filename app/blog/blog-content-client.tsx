@@ -3,12 +3,12 @@
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import SearchBar from "@/app/components/search-bar";
+import { useSiteLanguage } from "@/app/components/language-provider";
 import type { BlogPost } from "@/app/lib/blog-content";
 import type { SiteLanguage } from "@/app/lib/site-language";
 
 interface BlogContentClientProps {
   posts: BlogPost[];
-  language: SiteLanguage;
 }
 
 const copy: Record<
@@ -49,7 +49,8 @@ function formatBlogDate(value: string, language: SiteLanguage) {
   }).format(new Date(value));
 }
 
-export default function BlogContentClient({ posts, language }: BlogContentClientProps) {
+export default function BlogContentClient({ posts }: BlogContentClientProps) {
+  const { language } = useSiteLanguage();
   const [searchQuery, setSearchQuery] = useState("");
 
   const filteredPosts = useMemo(() => {

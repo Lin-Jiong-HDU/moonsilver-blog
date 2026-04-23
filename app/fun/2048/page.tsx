@@ -4,6 +4,7 @@ import Link from "next/link";
 import type { CSSProperties } from "react";
 import { useCallback, useEffect, useState } from "react";
 import { useThemeMode, type ThemeMode } from "@/app/lib/use-theme-mode";
+import { useSiteLanguage } from "@/app/components/language-provider";
 
 const SIZE = 4;
 const TARGET = 2048;
@@ -163,9 +164,7 @@ function getPageClass(theme: ThemeMode) {
 }
 
 function getSurface(theme: ThemeMode, alpha = 0.72) {
-  return theme === "light"
-    ? `rgba(255,255,255,${alpha})`
-    : `rgba(255,255,255,${Math.min(alpha, 0.08)})`;
+  return theme === "light" ? `rgba(255,255,255,${alpha})` : `rgba(255,255,255,${Math.min(alpha, 0.08)})`;
 }
 
 function getBoardStyle(theme: ThemeMode): CSSProperties {
@@ -224,6 +223,52 @@ function getTileStyle(value: number, theme: ThemeMode): CSSProperties {
 
 export default function Game2048Page() {
   const theme = useThemeMode();
+  const { language } = useSiteLanguage();
+  const copy = {
+    zh: {
+      back: "返回 Fun",
+      title: "滑动合并，往一个角落堆数字",
+      intro: "方向键和 WASD 都可以操作。",
+      keys: ["方向键", "WASD", "R 重开"],
+      score: "分数",
+      best: "最高分",
+      goal: "目标",
+      board: "棋盘",
+      boardTitle: "Keep the grid breathing",
+      won: "2048 达成",
+      gameOver: "没有可用操作",
+      tipLabel: "提示",
+      tip: "2048 到了以后可以继续玩，尽量把大数字堆到一个角落。",
+      moveLeft: "左移",
+      moveUp: "上移",
+      moveDown: "下移",
+      moveRight: "右移",
+      restart: "重新开始",
+      combine: "合并相同数字",
+    },
+    en: {
+      back: "Back to Fun",
+      title: "Slide and merge tiles toward one corner.",
+      intro: "Arrow keys and WASD both work.",
+      keys: ["Arrow keys", "WASD", "R restart"],
+      score: "Score",
+      best: "Best",
+      goal: "Goal",
+      board: "Board",
+      boardTitle: "Keep the grid breathing",
+      won: "2048 reached",
+      gameOver: "No moves left",
+      tipLabel: "Tip",
+      tip: "Once you reach 2048, keep going and try to park the larger numbers in one corner.",
+      moveLeft: "Left",
+      moveUp: "Up",
+      moveDown: "Down",
+      moveRight: "Right",
+      restart: "Restart",
+      combine: "Combine equal tiles",
+    },
+  }[language];
+
   const [board, setBoard] = useState<Board>(() => spawnTile(spawnTile(createEmptyBoard())));
   const [score, setScore] = useState(0);
   const [bestScore, setBestScore] = useState(() => readBestScore());
@@ -294,64 +339,52 @@ export default function Game2048Page() {
     <div className={`min-h-screen pt-20 text-[var(--app-fg)] transition-colors duration-300 ${pageClass}`}>
       <section className="mx-auto grid max-w-7xl gap-10 px-6 py-16 lg:grid-cols-[0.9fr_1.1fr] lg:items-start">
         <div className="max-w-xl">
-          <Link
-            href="/fun"
-            className="inline-flex rounded-full border border-[var(--app-border)] px-4 py-2 text-sm text-[var(--app-muted)] transition-colors hover:border-[var(--app-border-strong)] hover:text-[var(--app-fg)]"
-          >
-            返回 Fun
+          <Link href="/fun" className="inline-flex rounded-full border border-[var(--app-border)] px-4 py-2 text-sm text-[var(--app-muted)] transition-colors hover:border-[var(--app-border-strong)] hover:text-[var(--app-fg)]">
+            {copy.back}
           </Link>
 
           <p className="mt-8 text-xs uppercase tracking-[0.3em] text-[var(--app-muted)]">2048</p>
-          <h1 className="mt-4 text-5xl font-semibold tracking-tight md:text-7xl">Slide. Merge. Chase 2048.</h1>
-          <p className="mt-6 text-sm leading-7 text-[var(--app-muted)] md:text-base">
-            方向键和 WASD 都可以操作。
-          </p>
+          <h1 className="mt-4 text-5xl font-semibold tracking-tight md:text-7xl">{copy.title}</h1>
+          <p className="mt-6 text-sm leading-7 text-[var(--app-muted)] md:text-base">{copy.intro}</p>
 
           <div className="mt-8 flex flex-wrap gap-3 text-xs text-[var(--app-muted)]">
-            <span className="rounded-full border border-[var(--app-border)] px-3 py-2">Arrow keys</span>
-            <span className="rounded-full border border-[var(--app-border)] px-3 py-2">WASD</span>
-            <span className="rounded-full border border-[var(--app-border)] px-3 py-2">R restart</span>
+            {copy.keys.map((item) => (
+              <span key={item} className="rounded-full border border-[var(--app-border)] px-3 py-2">
+                {item}
+              </span>
+            ))}
           </div>
 
           <div className="mt-10 grid grid-cols-3 gap-3">
-            <Stat label="Score" value={score} surface={surface} />
-            <Stat label="Best" value={bestScore} surface={surface} />
-            <Stat label="Goal" value={2048} surface={surface} />
+            <Stat label={copy.score} value={score} surface={surface} />
+            <Stat label={copy.best} value={bestScore} surface={surface} />
+            <Stat label={copy.goal} value={2048} surface={surface} />
           </div>
 
           <div className="mt-8 flex flex-wrap gap-3">
-            <ControlButton label="Left" onClick={() => applyMove("left")} />
-            <ControlButton label="Up" onClick={() => applyMove("up")} />
-            <ControlButton label="Down" onClick={() => applyMove("down")} />
-            <ControlButton label="Right" onClick={() => applyMove("right")} />
-            <button
-              type="button"
-              onClick={resetGame}
-              className="rounded-full bg-[var(--app-fg)] px-4 py-2 text-sm font-medium text-[var(--app-bg)] transition-colors hover:opacity-90"
-            >
-              Restart
+            <ControlButton label={copy.moveLeft} onClick={() => applyMove("left")} />
+            <ControlButton label={copy.moveUp} onClick={() => applyMove("up")} />
+            <ControlButton label={copy.moveDown} onClick={() => applyMove("down")} />
+            <ControlButton label={copy.moveRight} onClick={() => applyMove("right")} />
+            <button type="button" onClick={resetGame} className="rounded-full bg-[var(--app-fg)] px-4 py-2 text-sm font-medium text-[var(--app-bg)] transition-colors hover:opacity-90">
+              {copy.restart}
             </button>
           </div>
 
-          <p className="mt-6 text-sm text-[var(--app-muted)]">
-            提示：2048 到了以后可以继续玩，尽量把大数字堆到一个角落。
-          </p>
+          <p className="mt-6 text-sm text-[var(--app-muted)]">{copy.tipLabel}: {copy.tip}</p>
         </div>
 
         <div className="relative">
           <div className="absolute -inset-6 rounded-[36px] bg-[radial-gradient(circle,rgba(255,165,0,0.12),transparent_60%)] blur-2xl" />
-          <div
-            className="relative overflow-hidden rounded-[34px] border border-[var(--app-border)] p-4 md:p-6"
-            style={{ backgroundColor: surfaceSoft, boxShadow: "0 30px 80px rgba(0,0,0,0.22)" }}
-          >
+          <div className="relative overflow-hidden rounded-[34px] border border-[var(--app-border)] p-4 md:p-6" style={{ backgroundColor: surfaceSoft, boxShadow: "0 30px 80px rgba(0,0,0,0.22)" }}>
             <div className="mb-4 flex items-center justify-between gap-4">
               <div>
-                <p className="text-xs uppercase tracking-[0.22em] text-[var(--app-muted)]">Board</p>
-                <h2 className="mt-2 text-lg font-semibold">Keep the grid breathing</h2>
+                <p className="text-xs uppercase tracking-[0.22em] text-[var(--app-muted)]">{copy.board}</p>
+                <h2 className="mt-2 text-lg font-semibold">{copy.boardTitle}</h2>
               </div>
               <div className="flex flex-wrap gap-2 text-[11px] uppercase tracking-[0.22em] text-[var(--app-muted)]">
-                {won ? <Badge>2048 reached</Badge> : null}
-                {gameOver ? <Badge>No moves left</Badge> : null}
+                {won ? <Badge>{copy.won}</Badge> : null}
+                {gameOver ? <Badge>{copy.gameOver}</Badge> : null}
               </div>
             </div>
 
@@ -370,8 +403,8 @@ export default function Game2048Page() {
             </div>
 
             <div className="mt-4 flex items-center justify-between text-xs uppercase tracking-[0.22em] text-[var(--app-muted)]">
-              <span>Tip</span>
-              <span>Combine equal tiles</span>
+              <span>{copy.tipLabel}</span>
+              <span>{copy.combine}</span>
             </div>
           </div>
         </div>
@@ -380,15 +413,7 @@ export default function Game2048Page() {
   );
 }
 
-function Stat({
-  label,
-  value,
-  surface,
-}: {
-  label: string;
-  value: number;
-  surface: string;
-}) {
+function Stat({ label, value, surface }: { label: string; value: number; surface: string }) {
   return (
     <div className="rounded-[22px] border border-[var(--app-border)] p-4" style={{ backgroundColor: surface }}>
       <p className="text-[11px] uppercase tracking-[0.22em] text-[var(--app-muted)]">{label}</p>
@@ -399,11 +424,7 @@ function Stat({
 
 function ControlButton({ label, onClick }: { label: string; onClick: () => void }) {
   return (
-    <button
-      type="button"
-      onClick={onClick}
-      className="rounded-full border border-[var(--app-border)] px-4 py-2 text-sm text-[var(--app-fg)]/80 transition-colors hover:border-[var(--app-border-strong)] hover:text-[var(--app-fg)]"
-    >
+    <button type="button" onClick={onClick} className="rounded-full border border-[var(--app-border)] px-4 py-2 text-sm text-[var(--app-fg)]/80 transition-colors hover:border-[var(--app-border-strong)] hover:text-[var(--app-fg)]">
       {label}
     </button>
   );

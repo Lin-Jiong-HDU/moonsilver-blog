@@ -6,11 +6,7 @@ type SearchBarProps = {
   placeholder?: string;
 };
 
-export default function SearchBar({
-  value,
-  onChange,
-  placeholder = "Search...",
-}: SearchBarProps) {
+export default function SearchBar({ value, onChange, placeholder = "Search..." }: SearchBarProps) {
   return (
     <div className="relative w-full max-w-2xl">
       <input
@@ -24,7 +20,7 @@ export default function SearchBar({
         <button
           type="button"
           onClick={() => onChange("")}
-          aria-label="Clear search"
+          aria-label="Clear search / 清空搜索"
           className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--app-muted)] transition-colors hover:text-[var(--app-fg)]"
         >
           ×

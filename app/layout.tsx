@@ -1,18 +1,17 @@
 import type { Metadata } from "next";
-import { cookies } from "next/headers";
 import "./globals.css";
 import { AuthProvider } from "@/app/components/auth-provider";
 import { LanguageProvider } from "@/app/components/language-provider";
 import { SiteFooter } from "@/app/components/site-footer";
 import { SiteNavbar } from "@/app/components/site-navbar";
-import { htmlLang, LANGUAGE_COOKIE, normalizeSiteLanguage } from "@/app/lib/site-language";
+import { htmlLang, DEFAULT_LANGUAGE } from "@/app/lib/site-language";
 
 export const metadata: Metadata = {
   title: {
-    default: "MOONSILVER",
+    default: "MOONSILVER / 月银",
     template: "%s | MOONSILVER",
   },
-  description: "MOONSILVER website",
+  description: "MOONSILVER website / 月银个人站点",
 };
 
 export default function RootLayout({
@@ -20,11 +19,8 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const storedLanguage = cookies().get(LANGUAGE_COOKIE)?.value;
-  const language = normalizeSiteLanguage(storedLanguage);
-
   return (
-    <html lang={htmlLang(language)} data-theme="dark" suppressHydrationWarning>
+    <html lang={htmlLang(DEFAULT_LANGUAGE)} data-theme="dark" suppressHydrationWarning>
       <head>
         <script
           dangerouslySetInnerHTML={{
@@ -33,7 +29,7 @@ export default function RootLayout({
         />
       </head>
       <body>
-        <LanguageProvider initialLanguage={language}>
+        <LanguageProvider>
           <AuthProvider>
             <div className="min-h-screen bg-[var(--app-bg)] text-[var(--app-fg)] transition-colors duration-300">
               <SiteNavbar />

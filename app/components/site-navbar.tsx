@@ -1,11 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { useAuth } from "@/app/components/auth-provider";
 import { useSiteLanguage } from "@/app/components/language-provider";
-import { htmlLang } from "@/app/lib/site-language";
 
 const navLabels = {
   zh: {
@@ -18,6 +17,7 @@ const navLabels = {
     themeDark: "切换到白天模式",
     themeLight: "切换到黑夜模式",
     language: "EN",
+    switchLanguage: "切换到英文",
   },
   en: {
     home: "Home",
@@ -29,6 +29,7 @@ const navLabels = {
     themeDark: "Switch to light mode",
     themeLight: "Switch to dark mode",
     language: "中",
+    switchLanguage: "Switch to Chinese",
   },
 } as const;
 
@@ -58,7 +59,6 @@ function getInitialTheme(): "dark" | "light" {
 
 export function SiteNavbar() {
   const pathname = usePathname();
-  const router = useRouter();
   const { user, logout } = useAuth();
   const { language, setLanguage } = useSiteLanguage();
   const [theme, setTheme] = useState<"dark" | "light">(getInitialTheme);
@@ -68,9 +68,7 @@ export function SiteNavbar() {
     window.localStorage.setItem("site-theme", theme);
   }, [theme]);
 
-  useEffect(() => {
-    document.documentElement.lang = htmlLang(language);
-  }, [language]);
+  const labels = useMemo(() => navLabels[language], [language]);
 
   function toggleTheme() {
     setTheme((current) => (current === "dark" ? "light" : "dark"));
@@ -78,10 +76,7 @@ export function SiteNavbar() {
 
   function toggleLanguage() {
     setLanguage(language === "en" ? "zh" : "en");
-    router.refresh();
   }
-
-  const labels = useMemo(() => navLabels[language], [language]);
 
   return (
     <nav className="fixed left-0 right-0 top-0 z-50 border-b border-[var(--app-border)] bg-[var(--app-surface)]/85 px-6 py-4 backdrop-blur-md transition-colors duration-300 md:px-12">
@@ -98,7 +93,7 @@ export function SiteNavbar() {
             <button
               type="button"
               onClick={toggleLanguage}
-              aria-label={language === "en" ? "Switch to Chinese" : "Switch to English"}
+              aria-label={labels.switchLanguage}
               className="rounded-full border border-[var(--app-border)] px-3 py-2 text-xs text-[var(--app-muted)] transition-colors hover:border-[var(--app-border-strong)] hover:text-[var(--app-fg)]"
             >
               {labels.language}
@@ -124,15 +119,11 @@ export function SiteNavbar() {
                   <Link
                     href={link.href}
                     className={`relative text-sm tracking-wide transition-colors ${
-                      active
-                        ? "text-[var(--app-fg)]"
-                        : "text-[var(--app-muted)] hover:text-[var(--app-fg)]"
+                      active ? "text-[var(--app-fg)]" : "text-[var(--app-muted)] hover:text-[var(--app-fg)]"
                     }`}
                   >
                     {labels[link.key]}
-                    {active ? (
-                      <span className="absolute -bottom-1 left-0 right-0 h-px bg-[var(--app-fg)]" />
-                    ) : null}
+                    {active ? <span className="absolute -bottom-1 left-0 right-0 h-px bg-[var(--app-fg)]" /> : null}
                   </Link>
                 </li>
               );
@@ -158,7 +149,7 @@ export function SiteNavbar() {
             <button
               type="button"
               onClick={toggleLanguage}
-              aria-label={language === "en" ? "Switch to Chinese" : "Switch to English"}
+              aria-label={labels.switchLanguage}
               className="hidden rounded-full border border-[var(--app-border)] px-3 py-2 text-xs text-[var(--app-muted)] transition-colors hover:border-[var(--app-border-strong)] hover:text-[var(--app-fg)] lg:inline-flex"
             >
               {labels.language}

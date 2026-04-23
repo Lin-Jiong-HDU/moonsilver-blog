@@ -4,26 +4,31 @@ import Link from "next/link";
 import { useMemo, useState } from "react";
 import {
   careerTypes,
-  dimensions,
   getAbilityById,
   normalizedQuestions,
 } from "@/app/jobti/jobti-data";
 import { calculateJobtiResult, createEmptyAnswers } from "@/app/jobti/jobti-engine";
+import { useSiteLanguage } from "@/app/components/language-provider";
 
-const answerOptions = [
-  { value: 1, label: "左侧非常符合" },
-  { value: 2, label: "左侧符合" },
-  { value: 3, label: "无感" },
-  { value: 4, label: "右侧符合" },
-  { value: 5, label: "右侧非常符合" },
-];
+const answerOptions = {
+  zh: [
+    { value: 1, label: "左侧非常符合" },
+    { value: 2, label: "左侧符合" },
+    { value: 3, label: "无感" },
+    { value: 4, label: "右侧符合" },
+    { value: 5, label: "右侧非常符合" },
+  ],
+  en: [
+    { value: 1, label: "Much closer to left" },
+    { value: 2, label: "Closer to left" },
+    { value: 3, label: "Neutral" },
+    { value: 4, label: "Closer to right" },
+    { value: 5, label: "Much closer to right" },
+  ],
+} as const;
 
 function SectionLabel({ children }: { children: string }) {
-  return (
-    <span className="text-xs font-medium uppercase tracking-[0.25em] text-white/30">
-      {children}
-    </span>
-  );
+  return <span className="text-xs font-medium uppercase tracking-[0.25em] text-white/30">{children}</span>;
 }
 
 function Footer() {
@@ -34,11 +39,94 @@ function Footer() {
   );
 }
 
+function getDimensionLabel(dimension: string, language: "zh" | "en") {
+  const map: Record<string, { zh: string; en: string }> = {
+    AR: { zh: "创意表达 / 规则构建", en: "Creative Expression / Rule Building" },
+    PD: { zh: "人群协同 / 数据驱动", en: "People Coordination / Data Driven" },
+    XS: { zh: "探索开拓 / 稳定落地", en: "Exploration / Stable Delivery" },
+    LM: { zh: "统筹主导 / 专精深耕", en: "Leadership / Deep Specialization" },
+  };
+
+  return map[dimension]?.[language] ?? dimension;
+}
+
 export function JobtiClient() {
+  const { language } = useSiteLanguage();
   const [started, setStarted] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [answers, setAnswers] = useState<Array<number | null>>(createEmptyAnswers);
   const [selectedJobId, setSelectedJobId] = useState<string | null>(null);
+
+  const copy = {
+    zh: {
+      label: "Entertainment",
+      title: "Jobti",
+      intro: "一个轻量的职业向量小游戏。答完题后会生成类型结果和岗位匹配。",
+      start: "开始体验",
+      backToFun: "返回娱乐区",
+      stepHelp: "下面两种描述里，选择更接近你真实状态的一项。结果会在全部答完后统一生成。",
+      backIntro: "返回介绍",
+      previous: "上一题",
+      next: "下一题",
+      result: "查看结果",
+      answerLeft: "左侧",
+      answerRight: "右侧",
+      resultLabel: "Result",
+      matches: "Matches",
+      detail: "Detail",
+      abilities: "Core Abilities",
+      education: "Education Hint",
+      profile: "Profile",
+      whyFit: "Why It Fits",
+      restart: "再测一次",
+      backToFunEnd: "返回娱乐区",
+      stage: "阶段",
+      primaryCode: "主代码",
+      domain: "领域",
+      fitScore: "匹配分",
+      fitTag: "fit",
+      questionPrefix: (index: number, total: number) => `${index} / ${total}`,
+      resultIntro: "你的结果代码是",
+      resultIntroTail: "当前岗位主代码是",
+      resultExplain: "匹配分同时参考了类型代码、四维向量距离和岗位排序权重。",
+      questionIntro: "下面两种描述里，选择更接近你真实状态的一项。结果会在全部答完后统一生成。",
+      unlocked: "内容持续更新中",
+    },
+    en: {
+      label: "Entertainment",
+      title: "Jobti",
+      intro: "A lightweight career-vector mini game. After you finish, it generates a type result and job matches.",
+      start: "Start",
+      backToFun: "Back to fun",
+      stepHelp: "Choose the option that feels closer to your real state. The result will be generated after all questions are answered.",
+      backIntro: "Back to intro",
+      previous: "Previous",
+      next: "Next",
+      result: "See result",
+      answerLeft: "Left side",
+      answerRight: "Right side",
+      resultLabel: "Result",
+      matches: "Matches",
+      detail: "Detail",
+      abilities: "Core Abilities",
+      education: "Education Hint",
+      profile: "Profile",
+      whyFit: "Why It Fits",
+      restart: "Try again",
+      backToFunEnd: "Back to fun",
+      stage: "Stage",
+      primaryCode: "Primary Code",
+      domain: "Domain",
+      fitScore: "Fit Score",
+      fitTag: "fit",
+      questionPrefix: (index: number, total: number) => `${index} / ${total}`,
+      resultIntro: "Your result code is",
+      resultIntroTail: "and the current job primary code is",
+      resultExplain: "The match score also considers the type code, 4D vector distance, and ranking weight.",
+      questionIntro: "Choose the description that is closer to your real state. The result will be generated after all questions are answered.",
+      unlocked: "Content keeps growing",
+    },
+  }[language];
 
   const result = useMemo(() => calculateJobtiResult(answers), [answers]);
   const currentQuestion = normalizedQuestions[currentIndex];
@@ -90,11 +178,9 @@ export function JobtiClient() {
     return (
       <div className="min-h-screen bg-black pt-20 text-white">
         <section className="mx-auto max-w-4xl px-6 py-24">
-          <SectionLabel>Entertainment</SectionLabel>
-          <h1 className="mt-4 text-4xl font-bold md:text-5xl">Jobti</h1>
-          <p className="mt-4 max-w-2xl text-sm leading-relaxed text-white/40">
-            一个轻量的职业向量小游戏。答完题后会生成类型结果和岗位匹配。
-          </p>
+          <SectionLabel>{copy.label}</SectionLabel>
+          <h1 className="mt-4 text-4xl font-bold md:text-5xl">{copy.title}</h1>
+          <p className="mt-4 max-w-2xl text-sm leading-relaxed text-white/40">{copy.intro}</p>
 
           <div className="mt-16 flex flex-wrap gap-3">
             <button
@@ -102,13 +188,10 @@ export function JobtiClient() {
               onClick={handleStart}
               className="rounded-full border border-white/15 bg-white px-6 py-3 text-sm font-medium text-black transition-colors hover:bg-white/90"
             >
-              开始体验
+              {copy.start}
             </button>
-            <Link
-              href="/fun"
-              className="rounded-full border border-white/10 px-6 py-3 text-sm text-white/60 transition-colors hover:border-white/20 hover:text-white"
-            >
-              返回娱乐区
+            <Link href="/fun" className="rounded-full border border-white/10 px-6 py-3 text-sm text-white/60 transition-colors hover:border-white/20 hover:text-white">
+              {copy.backToFun}
             </Link>
           </div>
         </section>
@@ -119,22 +202,17 @@ export function JobtiClient() {
   }
 
   if (!completed && currentQuestion) {
-    const dimensionMeta = dimensions.find((item) => item.dimension === currentQuestion.dimension);
     const progress = Math.round(((currentIndex + 1) / normalizedQuestions.length) * 100);
 
     return (
       <div className="min-h-screen bg-black pt-20 text-white">
         <section className="mx-auto max-w-4xl px-6 py-24">
           <div className="mb-12">
-            <SectionLabel>Jobti</SectionLabel>
+            <SectionLabel>{copy.title}</SectionLabel>
             <div className="mt-4 flex items-end justify-between gap-6">
               <div>
-                <h1 className="text-4xl font-bold md:text-5xl">
-                  {currentIndex + 1} / {normalizedQuestions.length}
-                </h1>
-                <p className="mt-3 text-sm text-white/40">
-                  {dimensionMeta?.left_name_cn} / {dimensionMeta?.right_name_cn}
-                </p>
+                <h1 className="text-4xl font-bold md:text-5xl">{copy.questionPrefix(currentIndex + 1, normalizedQuestions.length)}</h1>
+                <p className="mt-3 text-sm text-white/40">{getDimensionLabel(currentQuestion.dimension, language)}</p>
               </div>
               <p className="text-sm text-white/30">{progress}%</p>
             </div>
@@ -145,22 +223,20 @@ export function JobtiClient() {
 
           <div className="rounded-3xl border border-white/8 bg-white/[0.02] p-8 md:p-10">
             <p className="text-xs uppercase tracking-[0.2em] text-white/30">{currentQuestion.question_id}</p>
-            <p className="mt-4 text-sm leading-relaxed text-white/40">
-              下面两种描述里，选择更接近你真实状态的一项。结果会在全部答完后统一生成。
-            </p>
+            <p className="mt-4 text-sm leading-relaxed text-white/40">{copy.questionIntro}</p>
             <div className="mt-8 grid gap-6 md:grid-cols-2">
               <div className="rounded-2xl border border-white/8 p-6">
-                <p className="text-xs uppercase tracking-[0.2em] text-white/30">Left</p>
+                <p className="text-xs uppercase tracking-[0.2em] text-white/30">{copy.answerLeft}</p>
                 <h2 className="mt-4 text-2xl font-semibold text-white">{currentQuestion.left_text}</h2>
               </div>
               <div className="rounded-2xl border border-white/8 p-6">
-                <p className="text-xs uppercase tracking-[0.2em] text-white/30">Right</p>
+                <p className="text-xs uppercase tracking-[0.2em] text-white/30">{copy.answerRight}</p>
                 <h2 className="mt-4 text-2xl font-semibold text-white">{currentQuestion.right_text}</h2>
               </div>
             </div>
 
             <div className="mt-8 grid gap-3">
-              {answerOptions.map((option) => {
+              {answerOptions[language].map((option) => {
                 const active = currentValue === option.value;
 
                 return (
@@ -169,15 +245,11 @@ export function JobtiClient() {
                     type="button"
                     onClick={() => handleAnswer(option.value)}
                     className={`flex items-center justify-between rounded-2xl border px-5 py-4 text-left transition-colors ${
-                      active
-                        ? "border-white/30 bg-white/[0.08] text-white"
-                        : "border-white/8 bg-transparent text-white/50 hover:border-white/20 hover:text-white/80"
+                      active ? "border-white/30 bg-white/[0.08] text-white" : "border-white/8 bg-transparent text-white/50 hover:border-white/20 hover:text-white/80"
                     }`}
                   >
                     <span className="text-sm">{option.label}</span>
-                    <span className="text-xs uppercase tracking-[0.2em] text-white/30">
-                      {option.value}
-                    </span>
+                    <span className="text-xs uppercase tracking-[0.2em] text-white/30">{option.value}</span>
                   </button>
                 );
               })}
@@ -189,7 +261,7 @@ export function JobtiClient() {
                 onClick={handlePrevious}
                 className="rounded-full border border-white/10 px-5 py-3 text-sm text-white/60 transition-colors hover:border-white/20 hover:text-white"
               >
-                {currentIndex === 0 ? "返回介绍" : "上一题"}
+                {currentIndex === 0 ? copy.backIntro : copy.previous}
               </button>
               <button
                 type="button"
@@ -197,7 +269,7 @@ export function JobtiClient() {
                 disabled={currentValue === null}
                 className="rounded-full border border-white/15 bg-white px-5 py-3 text-sm font-medium text-black transition-colors hover:bg-white/90 disabled:cursor-not-allowed disabled:opacity-40"
               >
-                {currentIndex === normalizedQuestions.length - 1 ? "查看结果" : "下一题"}
+                {currentIndex === normalizedQuestions.length - 1 ? copy.result : copy.next}
               </button>
             </div>
           </div>
@@ -211,17 +283,13 @@ export function JobtiClient() {
   return (
     <div className="min-h-screen bg-black pt-20 text-white">
       <section className="mx-auto max-w-4xl px-6 py-24">
-        <SectionLabel>Result</SectionLabel>
+        <SectionLabel>{copy.resultLabel}</SectionLabel>
         <div className="mt-4">
           <h1 className="text-4xl font-bold md:text-5xl">
             {result.careerType.career_code} · {result.careerType.type_name}
           </h1>
-          <p className="mt-4 max-w-3xl text-sm leading-relaxed text-white/40">
-            {result.careerType.summary}
-          </p>
-          <p className="mt-2 max-w-3xl text-sm leading-relaxed text-white/30">
-            {result.careerType.fit_scenes}
-          </p>
+          <p className="mt-4 max-w-3xl text-sm leading-relaxed text-white/40">{result.careerType.summary}</p>
+          <p className="mt-2 max-w-3xl text-sm leading-relaxed text-white/30">{result.careerType.fit_scenes}</p>
         </div>
 
         <div className="mt-14 grid gap-4 md:grid-cols-4">
@@ -241,7 +309,7 @@ export function JobtiClient() {
 
         <div className="mt-16 grid gap-8 lg:grid-cols-[0.9fr_1.1fr]">
           <div>
-            <SectionLabel>Matches</SectionLabel>
+            <SectionLabel>{copy.matches}</SectionLabel>
             <div className="mt-6 space-y-3">
               {result.jobs.map((match, index) => {
                 const active = activeMatch?.job.job_id === match.job.job_id;
@@ -252,16 +320,12 @@ export function JobtiClient() {
                     type="button"
                     onClick={() => setSelectedJobId(match.job.job_id)}
                     className={`w-full rounded-2xl border px-5 py-4 text-left transition-colors ${
-                      active
-                        ? "border-white/25 bg-white/[0.04]"
-                        : "border-white/8 bg-transparent hover:border-white/20 hover:bg-white/[0.02]"
+                      active ? "border-white/25 bg-white/[0.04]" : "border-white/8 bg-transparent hover:border-white/20 hover:bg-white/[0.02]"
                     }`}
                   >
                     <div className="flex items-center justify-between gap-4">
                       <div>
-                        <p className="text-xs uppercase tracking-[0.2em] text-white/30">
-                          {String(index + 1).padStart(2, "0")}
-                        </p>
+                        <p className="text-xs uppercase tracking-[0.2em] text-white/30">{String(index + 1).padStart(2, "0")}</p>
                         <p className="mt-2 text-base font-medium text-white">{match.job.job_display_name}</p>
                         <p className="mt-1 text-sm text-white/40">
                           {match.job.job_family} · {match.job.career_stage}
@@ -269,7 +333,7 @@ export function JobtiClient() {
                       </div>
                       <div className="text-right">
                         <p className="text-xl font-semibold text-white">{match.fitScore}</p>
-                        <p className="text-xs text-white/30">fit</p>
+                        <p className="text-xs text-white/30">{copy.fitTag}</p>
                       </div>
                     </div>
                   </button>
@@ -279,7 +343,7 @@ export function JobtiClient() {
           </div>
 
           <div>
-            <SectionLabel>Detail</SectionLabel>
+            <SectionLabel>{copy.detail}</SectionLabel>
             <div className="mt-6 rounded-3xl border border-white/8 bg-white/[0.02] p-8">
               <p className="text-xs uppercase tracking-[0.2em] text-white/30">{activeMatch?.job.domain}</p>
               <h2 className="mt-4 text-3xl font-semibold text-white">{activeMatch?.job.job_display_name}</h2>
@@ -288,41 +352,44 @@ export function JobtiClient() {
 
               <div className="mt-8 grid gap-4 md:grid-cols-2">
                 <div className="rounded-2xl border border-white/8 p-5">
-                  <p className="text-xs uppercase tracking-[0.2em] text-white/30">Core Abilities</p>
+                  <p className="text-xs uppercase tracking-[0.2em] text-white/30">{copy.abilities}</p>
                   <div className="mt-4 flex flex-wrap gap-2">
                     {(activeMatch?.job.coreAbilityIds ?? []).map((abilityId) => (
-                      <span
-                        key={abilityId}
-                        className="rounded-full border border-white/10 px-3 py-1 text-xs text-white/60"
-                      >
+                      <span key={abilityId} className="rounded-full border border-white/10 px-3 py-1 text-xs text-white/60">
                         {getAbilityById(abilityId)?.ability_name ?? abilityId}
                       </span>
                     ))}
                   </div>
                 </div>
                 <div className="rounded-2xl border border-white/8 p-5">
-                  <p className="text-xs uppercase tracking-[0.2em] text-white/30">Education Hint</p>
-                  <p className="mt-4 text-sm leading-relaxed text-white/40">
-                    {activeMatch?.job.education_hint}
-                  </p>
+                  <p className="text-xs uppercase tracking-[0.2em] text-white/30">{copy.education}</p>
+                  <p className="mt-4 text-sm leading-relaxed text-white/40">{activeMatch?.job.education_hint}</p>
                 </div>
               </div>
 
               <div className="mt-8 grid gap-4 md:grid-cols-2">
                 <div className="rounded-2xl border border-white/8 p-5">
-                  <p className="text-xs uppercase tracking-[0.2em] text-white/30">Profile</p>
+                  <p className="text-xs uppercase tracking-[0.2em] text-white/30">{copy.profile}</p>
                   <div className="mt-4 space-y-2 text-sm text-white/40">
-                    <p>阶段：{activeMatch?.job.career_stage}</p>
-                    <p>主代码：{activeMatch?.job.primary_code}</p>
-                    <p>领域：{activeMatch?.job.domain}</p>
-                    <p>匹配分：{activeMatch?.fitScore}</p>
+                    <p>
+                      {copy.stage}: {activeMatch?.job.career_stage}
+                    </p>
+                    <p>
+                      {copy.primaryCode}: {activeMatch?.job.primary_code}
+                    </p>
+                    <p>
+                      {copy.domain}: {activeMatch?.job.domain}
+                    </p>
+                    <p>
+                      {copy.fitScore}: {activeMatch?.fitScore}
+                    </p>
                   </div>
                 </div>
                 <div className="rounded-2xl border border-white/8 p-5">
-                  <p className="text-xs uppercase tracking-[0.2em] text-white/30">Why It Fits</p>
+                  <p className="text-xs uppercase tracking-[0.2em] text-white/30">{copy.whyFit}</p>
                   <p className="mt-4 text-sm leading-relaxed text-white/40">
-                    你的结果代码是 {result.careerType.career_code}，当前岗位主代码是{" "}
-                    {activeMatch?.job.primary_code}。匹配分同时参考了类型代码、四维向量距离和岗位排序权重。
+                    {copy.resultIntro} {result.careerType.career_code} {copy.resultIntroTail} {activeMatch?.job.primary_code}.{" "}
+                    {copy.resultExplain}
                   </p>
                 </div>
               </div>
@@ -332,7 +399,7 @@ export function JobtiClient() {
 
         <div className="mt-16 grid gap-8 lg:grid-cols-2">
           <div>
-            <SectionLabel>Abilities</SectionLabel>
+            <SectionLabel>{copy.abilities}</SectionLabel>
             <div className="mt-6 space-y-3">
               {result.topAbilities.map((ability) => (
                 <div key={ability.id} className="rounded-2xl border border-white/8 bg-white/[0.02] p-5">
@@ -352,9 +419,7 @@ export function JobtiClient() {
                 <div
                   key={type.career_code}
                   className={`rounded-2xl border px-5 py-4 ${
-                    type.career_code === result.careerType.career_code
-                      ? "border-white/25 bg-white/[0.04]"
-                      : "border-white/8 bg-transparent"
+                    type.career_code === result.careerType.career_code ? "border-white/25 bg-white/[0.04]" : "border-white/8 bg-transparent"
                   }`}
                 >
                   <div className="flex items-center justify-between gap-4">
@@ -377,13 +442,10 @@ export function JobtiClient() {
             onClick={handleRestart}
             className="rounded-full border border-white/15 bg-white px-6 py-3 text-sm font-medium text-black transition-colors hover:bg-white/90"
           >
-            再测一次
+            {copy.restart}
           </button>
-          <Link
-            href="/fun"
-            className="rounded-full border border-white/10 px-6 py-3 text-sm text-white/60 transition-colors hover:border-white/20 hover:text-white"
-          >
-            返回娱乐区
+          <Link href="/fun" className="rounded-full border border-white/10 px-6 py-3 text-sm text-white/60 transition-colors hover:border-white/20 hover:text-white">
+            {copy.backToFunEnd}
           </Link>
         </div>
       </section>

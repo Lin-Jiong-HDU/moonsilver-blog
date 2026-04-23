@@ -4,6 +4,7 @@ import Link from "next/link";
 import type { CSSProperties } from "react";
 import { useEffect, useReducer } from "react";
 import { useThemeMode, type ThemeMode } from "@/app/lib/use-theme-mode";
+import { useSiteLanguage } from "@/app/components/language-provider";
 
 const BOARD_WIDTH = 10;
 const BOARD_HEIGHT = 20;
@@ -45,48 +46,13 @@ const COLORS: Record<PieceType, string> = {
 };
 
 const SHAPE_BASES: Record<PieceType, number[][]> = {
-  I: [
-    [0, 0, 0, 0],
-    [1, 1, 1, 1],
-    [0, 0, 0, 0],
-    [0, 0, 0, 0],
-  ],
-  O: [
-    [0, 1, 1, 0],
-    [0, 1, 1, 0],
-    [0, 0, 0, 0],
-    [0, 0, 0, 0],
-  ],
-  T: [
-    [0, 1, 0, 0],
-    [1, 1, 1, 0],
-    [0, 0, 0, 0],
-    [0, 0, 0, 0],
-  ],
-  S: [
-    [0, 1, 1, 0],
-    [1, 1, 0, 0],
-    [0, 0, 0, 0],
-    [0, 0, 0, 0],
-  ],
-  Z: [
-    [1, 1, 0, 0],
-    [0, 1, 1, 0],
-    [0, 0, 0, 0],
-    [0, 0, 0, 0],
-  ],
-  J: [
-    [1, 0, 0, 0],
-    [1, 1, 1, 0],
-    [0, 0, 0, 0],
-    [0, 0, 0, 0],
-  ],
-  L: [
-    [0, 0, 1, 0],
-    [1, 1, 1, 0],
-    [0, 0, 0, 0],
-    [0, 0, 0, 0],
-  ],
+  I: [[0, 0, 0, 0], [1, 1, 1, 1], [0, 0, 0, 0], [0, 0, 0, 0]],
+  O: [[0, 1, 1, 0], [0, 1, 1, 0], [0, 0, 0, 0], [0, 0, 0, 0]],
+  T: [[0, 1, 0, 0], [1, 1, 1, 0], [0, 0, 0, 0], [0, 0, 0, 0]],
+  S: [[0, 1, 1, 0], [1, 1, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]],
+  Z: [[1, 1, 0, 0], [0, 1, 1, 0], [0, 0, 0, 0], [0, 0, 0, 0]],
+  J: [[1, 0, 0, 0], [1, 1, 1, 0], [0, 0, 0, 0], [0, 0, 0, 0]],
+  L: [[0, 0, 1, 0], [1, 1, 1, 0], [0, 0, 0, 0], [0, 0, 0, 0]],
 };
 
 const ROTATIONS: Record<PieceType, number[][][]> = Object.fromEntries(
@@ -99,12 +65,7 @@ const ROTATIONS: Record<PieceType, number[][][]> = Object.fromEntries(
   }),
 ) as Record<PieceType, number[][][]>;
 
-const SCORE_TABLE: Record<number, number> = {
-  1: 100,
-  2: 300,
-  3: 500,
-  4: 800,
-};
+const SCORE_TABLE: Record<number, number> = { 1: 100, 2: 300, 3: 500, 4: 800 };
 
 function rotateMatrix(matrix: number[][]) {
   return Array.from({ length: 4 }, (_, x) => Array.from({ length: 4 }, (_, y) => matrix[3 - y][x]));
@@ -361,6 +322,63 @@ function cellBack(theme: ThemeMode, type: PieceType | null): CSSProperties {
 
 export default function TetrisPage() {
   const theme = useThemeMode();
+  const { language } = useSiteLanguage();
+
+  const copy = {
+    zh: {
+      back: "返回 Fun",
+      title: "下落、旋转、消行",
+      intro: "方向键移动，空格硬降，P 暂停，R 重开。",
+      keys: ["方向键", "Space 硬降", "P 暂停", "R 重开"],
+      score: "分数",
+      lines: "行数",
+      level: "等级",
+      controls: "Controls",
+      move: "移动",
+      soft: "软降",
+      rotate: "旋转",
+      hard: "硬降",
+      pause: "暂停",
+      restart: "重开",
+      playfield: "Playfield",
+      boardTitle: "Stack with intent",
+      paused: "已暂停",
+      over: "游戏结束",
+      next: "下一个",
+      speed: "速度",
+      goal: "目标是消行并继续往上爬。",
+      tipOk: "把每一列保持干净，先清线，再追更高等级。",
+      tipOver: "游戏结束了，重新开始再来一局。",
+      backToFun: "返回 Fun",
+    },
+    en: {
+      back: "Back to Fun",
+      title: "Drop, rotate, and clear lines.",
+      intro: "Arrow keys move, Space hard-drops, P pauses, R restarts.",
+      keys: ["Arrow keys", "Space drop", "P pause", "R restart"],
+      score: "Score",
+      lines: "Lines",
+      level: "Level",
+      controls: "Controls",
+      move: "Move",
+      soft: "Soft drop",
+      rotate: "Rotate",
+      hard: "Hard drop",
+      pause: "Pause",
+      restart: "Restart",
+      playfield: "Playfield",
+      boardTitle: "Stack with intent",
+      paused: "Paused",
+      over: "Game over",
+      next: "Next",
+      speed: "Speed",
+      goal: "Clear lines and keep climbing.",
+      tipOk: "Keep each column tidy, clear lines first, then push for a higher level.",
+      tipOver: "Game over. Start again for another run.",
+      backToFun: "Back to Fun",
+    },
+  }[language];
+
   const [state, dispatch] = useReducer(reducer, undefined, createInitialState);
 
   useEffect(() => {
@@ -415,41 +433,37 @@ export default function TetrisPage() {
     <div className={`min-h-screen pt-20 text-[var(--app-fg)] transition-colors duration-300 ${pageClass}`}>
       <section className="mx-auto grid max-w-7xl gap-10 px-6 py-16 lg:grid-cols-[0.92fr_1.08fr] lg:items-start">
         <div className="max-w-xl">
-          <Link
-            href="/fun"
-            className="inline-flex rounded-full border border-[var(--app-border)] px-4 py-2 text-sm text-[var(--app-muted)] transition-colors hover:border-[var(--app-border-strong)] hover:text-[var(--app-fg)]"
-          >
-            返回 Fun
+          <Link href="/fun" className="inline-flex rounded-full border border-[var(--app-border)] px-4 py-2 text-sm text-[var(--app-muted)] transition-colors hover:border-[var(--app-border-strong)] hover:text-[var(--app-fg)]">
+            {copy.back}
           </Link>
 
           <p className="mt-8 text-xs uppercase tracking-[0.3em] text-[var(--app-muted)]">Tetris</p>
-          <h1 className="mt-4 text-5xl font-semibold tracking-tight md:text-7xl">Drop clean. Clear lines.</h1>
-          <p className="mt-6 text-sm leading-7 text-[var(--app-muted)] md:text-base">
-            方向键移动，空格硬降，P 暂停，R 重开。
-          </p>
+          <h1 className="mt-4 text-5xl font-semibold tracking-tight md:text-7xl">{copy.title}</h1>
+          <p className="mt-6 text-sm leading-7 text-[var(--app-muted)] md:text-base">{copy.intro}</p>
 
           <div className="mt-8 flex flex-wrap gap-3 text-xs text-[var(--app-muted)]">
-            <span className="rounded-full border border-[var(--app-border)] px-3 py-2">Arrow keys</span>
-            <span className="rounded-full border border-[var(--app-border)] px-3 py-2">Space drop</span>
-            <span className="rounded-full border border-[var(--app-border)] px-3 py-2">P pause</span>
-            <span className="rounded-full border border-[var(--app-border)] px-3 py-2">R restart</span>
+            {copy.keys.map((item) => (
+              <span key={item} className="rounded-full border border-[var(--app-border)] px-3 py-2">
+                {item}
+              </span>
+            ))}
           </div>
 
           <div className="mt-10 grid grid-cols-3 gap-3">
-            <Stat label="Score" value={state.score} surface={panelSurface} />
-            <Stat label="Lines" value={state.lines} surface={panelSurface} />
-            <Stat label="Level" value={state.level} surface={panelSurface} />
+            <Stat label={copy.score} value={state.score} surface={panelSurface} />
+            <Stat label={copy.lines} value={state.lines} surface={panelSurface} />
+            <Stat label={copy.level} value={state.level} surface={panelSurface} />
           </div>
 
           <div className="mt-8 rounded-[28px] border border-[var(--app-border)] p-5" style={{ backgroundColor: panelSurface }}>
-            <p className="text-xs uppercase tracking-[0.22em] text-[var(--app-muted)]">Controls</p>
+            <p className="text-xs uppercase tracking-[0.22em] text-[var(--app-muted)]">{copy.controls}</p>
             <div className="mt-4 grid gap-3 text-sm text-[var(--app-muted)] sm:grid-cols-2">
-              <Control label="Move" value="Arrow keys / A D" />
-              <Control label="Soft drop" value="Arrow Down / S" />
-              <Control label="Rotate" value="Arrow Up / W / X" />
-              <Control label="Hard drop" value="Space" />
-              <Control label="Pause" value="P" />
-              <Control label="Restart" value="R" />
+              <Control label={copy.move} value="Arrow keys / A D" />
+              <Control label={copy.soft} value="Arrow Down / S" />
+              <Control label={copy.rotate} value="Arrow Up / W / X" />
+              <Control label={copy.hard} value="Space" />
+              <Control label={copy.pause} value="P" />
+              <Control label={copy.restart} value="R" />
             </div>
           </div>
 
@@ -458,35 +472,28 @@ export default function TetrisPage() {
             <ControlButton label="Right" onClick={() => dispatch({ type: "MOVE", dx: 1, dy: 0 })} />
             <ControlButton label="Rotate" onClick={() => dispatch({ type: "ROTATE" })} />
             <ControlButton label="Drop" onClick={() => dispatch({ type: "DROP" })} />
-            <ControlButton label={state.status === "paused" ? "Resume" : "Pause"} onClick={() => dispatch({ type: "TOGGLE_PAUSE" })} />
-            <button
-              type="button"
-              onClick={() => dispatch({ type: "RESET" })}
-              className="rounded-full bg-[var(--app-fg)] px-4 py-2 text-sm font-medium text-[var(--app-bg)] transition-colors hover:opacity-90"
-            >
-              Restart
+            <ControlButton label={state.status === "paused" ? "Resume" : copy.pause} onClick={() => dispatch({ type: "TOGGLE_PAUSE" })} />
+            <button type="button" onClick={() => dispatch({ type: "RESET" })} className="rounded-full bg-[var(--app-fg)] px-4 py-2 text-sm font-medium text-[var(--app-bg)] transition-colors hover:opacity-90">
+              {copy.restart}
             </button>
           </div>
 
           <p className="mt-6 text-sm text-[var(--app-muted)]">
-            {state.status === "over" ? "Game over. 重新开始再来一局。" : "把每一列保持干净，先清线，再追更高等级。"}
+            {state.status === "over" ? copy.tipOver : copy.tipOk}
           </p>
         </div>
 
         <div className="relative">
           <div className="absolute -inset-6 rounded-[36px] bg-[radial-gradient(circle,rgba(120,160,255,0.12),transparent_60%)] blur-2xl" />
-          <div
-            className="relative overflow-hidden rounded-[34px] border border-[var(--app-border)] p-4 md:p-6"
-            style={{ backgroundColor: panelSurface, boxShadow: "0 30px 80px rgba(0,0,0,0.18)" }}
-          >
+          <div className="relative overflow-hidden rounded-[34px] border border-[var(--app-border)] p-4 md:p-6" style={{ backgroundColor: panelSurface, boxShadow: "0 30px 80px rgba(0,0,0,0.18)" }}>
             <div className="mb-4 flex items-center justify-between gap-4">
               <div>
-                <p className="text-xs uppercase tracking-[0.22em] text-[var(--app-muted)]">Playfield</p>
-                <h2 className="mt-2 text-lg font-semibold">Stack with intent</h2>
+                <p className="text-xs uppercase tracking-[0.22em] text-[var(--app-muted)]">{copy.playfield}</p>
+                <h2 className="mt-2 text-lg font-semibold">{copy.boardTitle}</h2>
               </div>
               <div className="flex flex-wrap gap-2 text-[11px] uppercase tracking-[0.22em] text-[var(--app-muted)]">
-                {state.status === "paused" ? <Badge>Paused</Badge> : null}
-                {state.status === "over" ? <Badge>Game over</Badge> : null}
+                {state.status === "paused" ? <Badge>{copy.paused}</Badge> : null}
+                {state.status === "over" ? <Badge>{copy.over}</Badge> : null}
               </div>
             </div>
 
@@ -494,17 +501,13 @@ export default function TetrisPage() {
               <div className="rounded-[28px] p-3 md:p-4" style={boardBack(theme)}>
                 <div className="grid aspect-[1/2] grid-cols-10 gap-[2px] rounded-[22px] p-2" style={boardInner(theme)}>
                   {displayBoard.map((cell, index) => (
-                    <div
-                      key={index}
-                      className="rounded-[4px] border border-white/5 transition-colors"
-                      style={cellBack(theme, cell)}
-                    />
+                    <div key={index} className="rounded-[4px] border border-white/5 transition-colors" style={cellBack(theme, cell)} />
                   ))}
                 </div>
               </div>
 
               <div className="rounded-[28px] border border-[var(--app-border)] p-4" style={{ backgroundColor: surface(theme, 0.55) }}>
-                <p className="text-xs uppercase tracking-[0.22em] text-[var(--app-muted)]">Next</p>
+                <p className="text-xs uppercase tracking-[0.22em] text-[var(--app-muted)]">{copy.next}</p>
                 <div className="mt-4 rounded-[20px] p-3" style={boardBack(theme)}>
                   <div className="grid grid-cols-4 gap-2" style={boardInner(theme)}>
                     {renderPreviewCells(state.nextType).map((cell) => (
@@ -517,8 +520,8 @@ export default function TetrisPage() {
                   </div>
                 </div>
                 <div className="mt-5 space-y-3 text-sm text-[var(--app-muted)]">
-                  <p>Speed: {Math.max(MIN_SPEED, BASE_SPEED - (state.level - 1) * SPEED_STEP)} ms</p>
-                  <p>Goal: clear lines and keep climbing.</p>
+                  <p>{copy.speed}: {Math.max(MIN_SPEED, BASE_SPEED - (state.level - 1) * SPEED_STEP)} ms</p>
+                  <p>{copy.goal}</p>
                 </div>
               </div>
             </div>
@@ -549,11 +552,7 @@ function Control({ label, value }: { label: string; value: string }) {
 
 function ControlButton({ label, onClick }: { label: string; onClick: () => void }) {
   return (
-    <button
-      type="button"
-      onClick={onClick}
-      className="rounded-full border border-[var(--app-border)] px-4 py-2 text-sm text-[var(--app-fg)]/80 transition-colors hover:border-[var(--app-border-strong)] hover:text-[var(--app-fg)]"
-    >
+    <button type="button" onClick={onClick} className="rounded-full border border-[var(--app-border)] px-4 py-2 text-sm text-[var(--app-fg)]/80 transition-colors hover:border-[var(--app-border-strong)] hover:text-[var(--app-fg)]">
       {label}
     </button>
   );
