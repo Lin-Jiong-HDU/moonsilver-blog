@@ -15,22 +15,12 @@ export default async function BlogPage() {
       <section className="mx-auto max-w-7xl px-6 py-16">
         <div className="max-w-3xl">
           <p className="text-xs uppercase tracking-[0.25em] text-[var(--app-muted)]">Blog</p>
-          <h1 className="mt-4 text-4xl font-bold tracking-tight md:text-5xl">本地写作的博客</h1>
+          <h1 className="mt-4 text-4xl font-bold tracking-tight md:text-5xl">moonsilver的博客</h1>
           <p className="mt-4 text-sm leading-relaxed text-[var(--app-muted)] md:text-base">
-            这里不再提供站内编辑器。以后你只需要在 `content/blog` 里新增一个 JSON 文件，
-            本地写好、提交、推上去，博客内容就会跟着一起发布。
+            记录我琐碎的日常
           </p>
         </div>
 
-        <div className="mt-10 flex flex-wrap gap-3 text-xs text-[var(--app-muted)]">
-          <span className="rounded-full border border-[var(--app-border)] px-3 py-2">Local first</span>
-          <span className="rounded-full border border-[var(--app-border)] px-3 py-2">
-            子文件夹：content/blog
-          </span>
-          <span className="rounded-full border border-[var(--app-border)] px-3 py-2">
-            每篇文章一个 JSON 文件
-          </span>
-        </div>
       </section>
 
       <section className="mx-auto max-w-7xl px-6 pb-24">
