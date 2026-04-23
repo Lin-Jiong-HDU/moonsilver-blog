@@ -1,4 +1,8 @@
+"use client";
+
+import { useState, useCallback } from "react";
 import Link from "next/link";
+import SearchBar from "@/app/components/search-bar";
 
 const entries = [
   {
@@ -25,6 +29,12 @@ const entries = [
     description: "下落、旋转、消行",
     note: "Game",
   },
+  {
+    href: "/fun/gomoku",
+    title: "五子棋",
+    description: "连成五颗同色棋子即获胜",
+    note: "Game",
+  },
 ];
 
 function SectionLabel({ children }: { children: string }) {
@@ -40,6 +50,13 @@ function Divider() {
 }
 
 export default function FunPage() {
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const filteredEntries = entries.filter((entry) =>
+    entry.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    entry.description.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
   return (
     <div className="min-h-screen bg-[var(--app-bg)] pt-20 text-[var(--app-fg)] transition-colors duration-300">
       <section className="mx-auto max-w-7xl px-6 py-16">
@@ -55,34 +72,46 @@ export default function FunPage() {
               <span className="rounded-full border border-[var(--app-border)] px-3 py-2">Fast entry</span>
               <span className="rounded-full border border-[var(--app-border)] px-3 py-2">No clutter</span>
             </div>
+            <div className="mt-8">
+              <SearchBar
+                placeholder="搜索游戏..."
+                onSearch={setSearchQuery}
+              />
+            </div>
           </div>
 
           <div className="rounded-[32px] border border-[var(--app-border)] bg-[var(--app-surface)]/70 p-5 backdrop-blur-sm">
             <div className="grid gap-4 sm:grid-cols-2">
-              {entries.map((entry) => (
-                <Link
-                  key={entry.href}
-                  href={entry.href}
-                  className="group flex min-h-[180px] flex-col justify-between rounded-[28px] border border-[var(--app-border)] bg-[var(--app-surface)]/55 p-5 transition-colors hover:border-[var(--app-border-strong)] hover:bg-[var(--app-surface)]/80"
-                >
-                  <div className="flex items-start justify-between gap-4">
-                    <p className="text-[11px] uppercase tracking-[0.22em] text-[var(--app-muted)]">
-                      {entry.note}
-                    </p>
-                    <span className="text-sm text-[var(--app-muted)] transition-transform group-hover:translate-x-1">
-                      →
-                    </span>
-                  </div>
-                  <div>
-                    <h2 className="mt-6 text-2xl font-semibold tracking-tight md:text-[2rem]">
-                      {entry.title}
-                    </h2>
-                    <p className="mt-3 max-w-sm text-sm leading-6 text-[var(--app-muted)]">
-                      {entry.description}
-                    </p>
-                  </div>
-                </Link>
-              ))}
+              {filteredEntries.length > 0 ? (
+                filteredEntries.map((entry) => (
+                  <Link
+                    key={entry.href}
+                    href={entry.href}
+                    className="group flex min-h-[180px] flex-col justify-between rounded-[28px] border border-[var(--app-border)] bg-[var(--app-surface)]/55 p-5 transition-colors hover:border-[var(--app-border-strong)] hover:bg-[var(--app-surface)]/80"
+                  >
+                    <div className="flex items-start justify-between gap-4">
+                      <p className="text-[11px] uppercase tracking-[0.22em] text-[var(--app-muted)]">
+                        {entry.note}
+                      </p>
+                      <span className="text-sm text-[var(--app-muted)] transition-transform group-hover:translate-x-1">
+                        →
+                      </span>
+                    </div>
+                    <div>
+                      <h2 className="mt-6 text-2xl font-semibold tracking-tight md:text-[2rem]">
+                        {entry.title}
+                      </h2>
+                      <p className="mt-3 max-w-sm text-sm leading-6 text-[var(--app-muted)]">
+                        {entry.description}
+                      </p>
+                    </div>
+                  </Link>
+                ))
+              ) : (
+                <div className="col-span-full flex items-center justify-center rounded-[28px] border border-dashed border-[var(--app-border)] bg-[var(--app-surface)]/40 py-12 text-sm text-[var(--app-muted)]">
+                  没有找到匹配的游戏
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -91,11 +120,11 @@ export default function FunPage() {
       <section className="mx-auto max-w-7xl px-6 pb-20">
         <div className="rounded-[30px] border border-[var(--app-border)] bg-[var(--app-surface)]/55">
           <div className="grid grid-cols-1 md:grid-cols-4">
-            {entries.map((entry, index) => (
+            {filteredEntries.map((entry, index) => (
               <Link
                 key={entry.href}
                 href={entry.href}
-                className={`group p-6 transition-colors hover:bg-[var(--app-surface)]/80 ${index < entries.length - 1 ? "md:border-r md:border-[var(--app-border)]" : ""
+                className={`group p-6 transition-colors hover:bg-[var(--app-surface)]/80 ${index < filteredEntries.length - 1 ? "md:border-r md:border-[var(--app-border)]" : ""
                   } ${index < 3 ? "border-b border-[var(--app-border)] md:border-b-0" : ""}`}
               >
                 <p className="text-xs uppercase tracking-[0.22em] text-[var(--app-muted)]">{entry.note}</p>
