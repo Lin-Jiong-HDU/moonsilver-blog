@@ -1,7 +1,7 @@
 "use client";
 
-import { useMemo, useState } from "react";
 import Link from "next/link";
+import { useMemo, useState } from "react";
 import SearchBar from "@/app/components/search-bar";
 
 const entries = [
@@ -74,46 +74,38 @@ export default function FunPage() {
               <span className="rounded-full border border-[var(--app-border)] px-3 py-2">No clutter</span>
             </div>
             <div className="mt-8">
-              <SearchBar
-                value={searchQuery}
-                onChange={setSearchQuery}
-                placeholder="搜索游戏..."
-              />
+              <SearchBar value={searchQuery} onChange={setSearchQuery} placeholder="搜索游戏..." />
             </div>
           </div>
 
           <div className="rounded-[32px] border border-[var(--app-border)] bg-[var(--app-surface)]/70 p-5 backdrop-blur-sm">
-            <div className="grid gap-4 sm:grid-cols-2">
-              {filteredEntries.length > 0 ? (
-                filteredEntries.map((entry) => (
-                  <Link
-                    key={entry.href}
-                    href={entry.href}
-                    className="group flex min-h-[180px] flex-col justify-between rounded-[28px] border border-[var(--app-border)] bg-[var(--app-surface)]/55 p-5 transition-colors hover:border-[var(--app-border-strong)] hover:bg-[var(--app-surface)]/80"
-                  >
-                    <div className="flex items-start justify-between gap-4">
-                      <p className="text-[11px] uppercase tracking-[0.22em] text-[var(--app-muted)]">
-                        {entry.note}
-                      </p>
-                      <span className="text-sm text-[var(--app-muted)] transition-transform group-hover:translate-x-1">
-                        →
-                      </span>
-                    </div>
-                    <div>
-                      <h2 className="mt-6 text-2xl font-semibold tracking-tight md:text-[2rem]">
-                        {entry.title}
-                      </h2>
-                      <p className="mt-3 max-w-sm text-sm leading-6 text-[var(--app-muted)]">
-                        {entry.description}
-                      </p>
-                    </div>
-                  </Link>
-                ))
-              ) : (
-                <div className="col-span-full flex items-center justify-center rounded-[28px] border border-dashed border-[var(--app-border)] bg-[var(--app-surface)]/40 py-12 text-sm text-[var(--app-muted)]">
-                  没有找到匹配的游戏
+            <div className="rounded-[28px] border border-[var(--app-border)] bg-[var(--app-surface)]/55 p-5">
+              <div className="flex items-start justify-between gap-4">
+                <div>
+                  <p className="text-[11px] uppercase tracking-[0.22em] text-[var(--app-muted)]">
+                    Featured modules
+                  </p>
+                  <h2 className="mt-3 text-2xl font-semibold tracking-tight md:text-[2rem]">
+                    Pick one, then scroll for the full list.
+                  </h2>
                 </div>
-              )}
+                <span className="text-sm text-[var(--app-muted)]">→</span>
+              </div>
+
+              <div className="mt-6 grid gap-3 sm:grid-cols-2">
+                {["Fast jump", "Searchable", "Play now", "More below"].map((label) => (
+                  <div
+                    key={label}
+                    className="rounded-[22px] border border-[var(--app-border)] px-4 py-5 text-sm text-[var(--app-muted)]"
+                  >
+                    {label}
+                  </div>
+                ))}
+              </div>
+
+              <p className="mt-6 max-w-sm text-sm leading-6 text-[var(--app-muted)]">
+                The detailed cards stay below so this panel can stay clean.
+              </p>
             </div>
           </div>
         </div>
