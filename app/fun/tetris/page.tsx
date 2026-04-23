@@ -425,7 +425,7 @@ export default function TetrisPage() {
           <p className="mt-8 text-xs uppercase tracking-[0.3em] text-[var(--app-muted)]">Tetris</p>
           <h1 className="mt-4 text-5xl font-semibold tracking-tight md:text-7xl">Drop clean. Clear lines.</h1>
           <p className="mt-6 text-sm leading-7 text-[var(--app-muted)] md:text-base">
-            方向键移动，空格硬降，P 暂停，R 重开。界面现在会跟着站点主题一起切换。
+            方向键移动，空格硬降，P 暂停，R 重开。
           </p>
 
           <div className="mt-8 flex flex-wrap gap-3 text-xs text-[var(--app-muted)]">

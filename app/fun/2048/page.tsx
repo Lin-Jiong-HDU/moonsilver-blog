@@ -304,7 +304,7 @@ export default function Game2048Page() {
           <p className="mt-8 text-xs uppercase tracking-[0.3em] text-[var(--app-muted)]">2048</p>
           <h1 className="mt-4 text-5xl font-semibold tracking-tight md:text-7xl">Slide. Merge. Chase 2048.</h1>
           <p className="mt-6 text-sm leading-7 text-[var(--app-muted)] md:text-base">
-            保留最直接的规则，界面更克制一点。方向键和 WASD 都可以操作。
+            方向键和 WASD 都可以操作。
           </p>
 
           <div className="mt-8 flex flex-wrap gap-3 text-xs text-[var(--app-muted)]">

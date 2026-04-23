@@ -48,7 +48,7 @@ export default function FunPage() {
             <SectionLabel>Entertainment</SectionLabel>
             <h1 className="mt-4 text-5xl font-bold tracking-tight md:text-7xl">Fun</h1>
             <p className="mt-6 max-w-xl text-sm leading-7 text-[var(--app-muted)] md:text-base">
-              这里放的是轻量、直接、适合顺手打开的内容。四个模块并列，点进去就是具体玩法。
+              点进去就能玩
             </p>
             <div className="mt-8 flex flex-wrap gap-3 text-xs text-[var(--app-muted)]">
               <span className="rounded-full border border-[var(--app-border)] px-3 py-2">Local games</span>
@@ -95,9 +95,8 @@ export default function FunPage() {
               <Link
                 key={entry.href}
                 href={entry.href}
-                className={`group p-6 transition-colors hover:bg-[var(--app-surface)]/80 ${
-                  index < entries.length - 1 ? "md:border-r md:border-[var(--app-border)]" : ""
-                } ${index < 3 ? "border-b border-[var(--app-border)] md:border-b-0" : ""}`}
+                className={`group p-6 transition-colors hover:bg-[var(--app-surface)]/80 ${index < entries.length - 1 ? "md:border-r md:border-[var(--app-border)]" : ""
+                  } ${index < 3 ? "border-b border-[var(--app-border)] md:border-b-0" : ""}`}
               >
                 <p className="text-xs uppercase tracking-[0.22em] text-[var(--app-muted)]">{entry.note}</p>
                 <h2 className="mt-4 text-3xl font-semibold tracking-tight">{entry.title}</h2>
