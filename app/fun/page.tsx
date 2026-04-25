@@ -37,6 +37,12 @@ const entries: Entry[] = [
     description: { zh: "下落、旋转、消行", en: "Drop, rotate, and clear lines" },
     note: { zh: "游戏", en: "Game" },
   },
+  {
+    href: "/fun/penalty-shootout",
+    title: { zh: "点球大战", en: "Penalty Shootout" },
+    description: { zh: "瞄准、射门、过门将", en: "Aim, shoot, and beat the keeper" },
+    note: { zh: "游戏", en: "Game" },
+  },
 ];
 
 const easterEggKeywords = ["inter"];
