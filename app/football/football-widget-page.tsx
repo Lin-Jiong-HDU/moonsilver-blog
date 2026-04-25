@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useMemo, useState } from "react";
 import { useSiteLanguage } from "@/app/components/language-provider";
 
@@ -54,14 +55,6 @@ function SectionLabel({ children }: { children: string }) {
   return <span className="text-xs font-medium uppercase tracking-[0.25em] text-white/30">{children}</span>;
 }
 
-function Footer() {
-  return (
-    <footer className="border-t border-white/5 py-8 text-center">
-      <p className="text-xs tracking-widest text-white/15">© {new Date().getFullYear()}</p>
-    </footer>
-  );
-}
-
 export function FootballWidgetPage() {
   const { language } = useSiteLanguage();
   const [activeLeagueCode, setActiveLeagueCode] = useState<LeagueCode>("PL");
@@ -72,6 +65,7 @@ export function FootballWidgetPage() {
       eyebrow: "Football",
       title: "足球数据",
       intro: "和 moonsilver 一起看球（我还没做这个功能）",
+      backToFun: "返回 Fun",
       leagueSwitcher: "联赛切换",
       viewSwitcher: "视图切换",
       table: "赛程 / 积分榜",
@@ -90,6 +84,7 @@ export function FootballWidgetPage() {
       eyebrow: "Football",
       title: "Football Data",
       intro: "Watch football with moonsilver (this feature is not done yet).",
+      backToFun: "Back to Fun",
       leagueSwitcher: "League Switcher",
       viewSwitcher: "View Switcher",
       table: "Fixtures / Standings",
@@ -114,6 +109,10 @@ export function FootballWidgetPage() {
     <div className="min-h-screen bg-black pt-20 text-white">
       <section className="mx-auto max-w-6xl px-6 py-20 md:py-24">
         <div className="max-w-3xl">
+          <Link href="/fun" className="mb-10 inline-flex rounded-full border border-white/10 px-4 py-2 text-sm text-white/60 transition-colors hover:border-white/20 hover:text-white">
+            {copy.backToFun}
+          </Link>
+
           <SectionLabel>{copy.eyebrow}</SectionLabel>
           <h1 className="mt-4 text-4xl font-bold tracking-tight md:text-5xl">{copy.title}</h1>
           <p className="mt-4 text-sm leading-relaxed text-white/45 md:text-base">{copy.intro}</p>
@@ -207,8 +206,6 @@ export function FootballWidgetPage() {
           </div>
         </div>
       </section>
-
-      <Footer />
     </div>
   );
 }

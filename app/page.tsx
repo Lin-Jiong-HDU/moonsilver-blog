@@ -90,7 +90,6 @@ export default function HomePage() {
     contestsTitle: isEnglish ? "Competition Results" : "竞赛成绩",
     researchLabel: isEnglish ? "Research" : "科研",
     researchTitle: isEnglish ? "Research Experience" : "科研经历",
-    footer: isEnglish ? `© ${new Date().getFullYear()} · Hangzhou Dianzi University` : `© ${new Date().getFullYear()} · 杭州电子科技大学`,
   };
 
   return (
@@ -225,9 +224,6 @@ export default function HomePage() {
         </div>
       </section>
 
-      <footer className="mt-8 border-t border-white/5 py-10 text-center">
-        <p className="text-xs tracking-widest text-white/20">{copy.footer}</p>
-      </footer>
     </div>
   );
 }

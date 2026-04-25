@@ -13,7 +13,7 @@ export const Menu: React.FC<MenuProps> = ({ onStart }) => {
         maxWidth: 640,
         padding: '40px 32px',
         textAlign: 'center',
-        color: 'white',
+        color: 'var(--app-fg)',
       }}
     >
       {/* Stadium lights effect */}
@@ -36,7 +36,7 @@ export const Menu: React.FC<MenuProps> = ({ onStart }) => {
           fontSize: 48,
           fontWeight: 900,
           letterSpacing: 2,
-          background: 'linear-gradient(135deg, #ffffff 0%, #86efac 50%, #34d399 100%)',
+          background: 'linear-gradient(135deg, var(--app-fg) 0%, #059669 50%, #16a34a 100%)',
           WebkitBackgroundClip: 'text',
           WebkitTextFillColor: 'transparent',
           marginBottom: 8,
@@ -77,8 +77,8 @@ export const Menu: React.FC<MenuProps> = ({ onStart }) => {
       {/* Instructions */}
       <div
         style={{
-          background: 'rgba(255,255,255,0.07)',
-          border: '1px solid rgba(255,255,255,0.12)',
+          background: 'var(--app-surface)',
+          border: '1px solid var(--app-border)',
           borderRadius: 12,
           padding: '20px 24px',
           marginBottom: 36,

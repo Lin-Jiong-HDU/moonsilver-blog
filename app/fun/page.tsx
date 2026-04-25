@@ -128,16 +128,14 @@ export default function FunPage() {
           </div>
         ) : null}
 
-        <div className="rounded-[30px] border border-[var(--app-border)] bg-[var(--app-surface)]/55">
+        <div className="rounded-[30px] border border-[var(--app-border)] bg-[var(--app-surface)]/55 p-3">
           {filteredEntries.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-4">
-              {filteredEntries.map((entry, index) => (
+            <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-5">
+              {filteredEntries.map((entry) => (
                 <Link
                   key={entry.href}
                   href={entry.href}
-                  className={`group p-6 transition-colors hover:bg-[var(--app-surface)]/80 ${
-                    index < filteredEntries.length - 1 ? "md:border-r md:border-[var(--app-border)]" : ""
-                  } ${index < 3 ? "border-b border-[var(--app-border)] md:border-b-0" : ""}`}
+                  className="group min-h-52 rounded-[22px] border border-[var(--app-border)] p-5 transition-colors hover:border-[var(--app-border-strong)] hover:bg-[var(--app-surface)]/80"
                 >
                   <p className="text-xs uppercase tracking-[0.22em] text-[var(--app-muted)]">{entry.note[language]}</p>
                   <h2 className="mt-4 text-3xl font-semibold tracking-tight">{entry.title[language]}</h2>

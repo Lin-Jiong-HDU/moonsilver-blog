@@ -21,11 +21,11 @@ export const PowerMeter: React.FC<PowerMeterProps> = ({ power, locked }) => {
 
   return (
     <div className="flex flex-col items-center gap-2 select-none">
-      <div className="text-white text-sm font-bold tracking-widest uppercase opacity-80">
+      <div className="text-[var(--app-fg)] text-sm font-bold tracking-widest uppercase opacity-80">
         Power
       </div>
       <div
-        className="relative w-14 rounded-full overflow-hidden border-2 border-white/30"
+        className="relative w-14 rounded-full overflow-hidden border-2 border-[var(--app-border-strong)]"
         style={{ height: 160, background: 'rgba(0,0,0,0.45)' }}
       >
         {/* Fill from bottom */}

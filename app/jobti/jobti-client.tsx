@@ -31,14 +31,6 @@ function SectionLabel({ children }: { children: string }) {
   return <span className="text-xs font-medium uppercase tracking-[0.25em] text-white/30">{children}</span>;
 }
 
-function Footer() {
-  return (
-    <footer className="border-t border-white/5 py-8 text-center">
-      <p className="text-xs tracking-widest text-white/15">© {new Date().getFullYear()}</p>
-    </footer>
-  );
-}
-
 function getDimensionLabel(dimension: string, language: "zh" | "en") {
   const map: Record<string, { zh: string; en: string }> = {
     AR: { zh: "创意表达 / 规则构建", en: "Creative Expression / Rule Building" },
@@ -178,6 +170,10 @@ export function JobtiClient() {
     return (
       <div className="min-h-screen bg-black pt-20 text-white">
         <section className="mx-auto max-w-4xl px-6 py-24">
+          <Link href="/fun" className="mb-10 inline-flex rounded-full border border-white/10 px-4 py-2 text-sm text-white/60 transition-colors hover:border-white/20 hover:text-white">
+            {copy.backToFun}
+          </Link>
+
           <SectionLabel>{copy.label}</SectionLabel>
           <h1 className="mt-4 text-4xl font-bold md:text-5xl">{copy.title}</h1>
           <p className="mt-4 max-w-2xl text-sm leading-relaxed text-white/40">{copy.intro}</p>
@@ -196,7 +192,6 @@ export function JobtiClient() {
           </div>
         </section>
 
-        <Footer />
       </div>
     );
   }
@@ -207,6 +202,10 @@ export function JobtiClient() {
     return (
       <div className="min-h-screen bg-black pt-20 text-white">
         <section className="mx-auto max-w-4xl px-6 py-24">
+          <Link href="/fun" className="mb-10 inline-flex rounded-full border border-white/10 px-4 py-2 text-sm text-white/60 transition-colors hover:border-white/20 hover:text-white">
+            {copy.backToFun}
+          </Link>
+
           <div className="mb-12">
             <SectionLabel>{copy.title}</SectionLabel>
             <div className="mt-4 flex items-end justify-between gap-6">
@@ -275,7 +274,6 @@ export function JobtiClient() {
           </div>
         </section>
 
-        <Footer />
       </div>
     );
   }
@@ -283,6 +281,10 @@ export function JobtiClient() {
   return (
     <div className="min-h-screen bg-black pt-20 text-white">
       <section className="mx-auto max-w-4xl px-6 py-24">
+        <Link href="/fun" className="mb-10 inline-flex rounded-full border border-white/10 px-4 py-2 text-sm text-white/60 transition-colors hover:border-white/20 hover:text-white">
+          {copy.backToFunEnd}
+        </Link>
+
         <SectionLabel>{copy.resultLabel}</SectionLabel>
         <div className="mt-4">
           <h1 className="text-4xl font-bold md:text-5xl">
@@ -449,8 +451,6 @@ export function JobtiClient() {
           </Link>
         </div>
       </section>
-
-      <Footer />
     </div>
   );
 }

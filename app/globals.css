@@ -123,6 +123,30 @@ html[data-theme="light"] .hover\:bg-white\/90:hover {
   color: #f5f1e8 !important;
 }
 
+html[data-theme="light"] .bg-black\/30 {
+  background-color: rgba(255, 255, 255, 0.5) !important;
+}
+
+html[data-theme="light"] .text-yellow-300 {
+  color: #8a5a00 !important;
+}
+
+html[data-theme="light"] .text-sky-300 {
+  color: #075985 !important;
+}
+
+html[data-theme="light"] .text-amber-400 {
+  color: #92400e !important;
+}
+
+html[data-theme="light"] .text-zinc-300 {
+  color: #3f3f46 !important;
+}
+
+html[data-theme="light"] .text-emerald-300 {
+  color: #047857 !important;
+}
+
 @keyframes home-breathe {
   0%,
   100% {

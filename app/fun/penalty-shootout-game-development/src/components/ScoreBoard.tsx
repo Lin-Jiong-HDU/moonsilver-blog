@@ -22,7 +22,7 @@ const ResultDot: React.FC<{ result: 'goal' | 'saved' | 'miss' | null; size?: num
           width: size,
           height: size,
           borderRadius: '50%',
-          border: '2px solid rgba(255,255,255,0.3)',
+          border: '2px solid var(--app-border-strong)',
           background: 'transparent',
         }}
       />
@@ -72,12 +72,12 @@ export const ScoreBoard: React.FC<ScoreBoardProps> = ({
   return (
     <div
       style={{
-        background: 'rgba(0,0,0,0.55)',
+        background: 'var(--app-surface)',
         backdropFilter: 'blur(8px)',
-        border: '1px solid rgba(255,255,255,0.15)',
+        border: '1px solid var(--app-border)',
         borderRadius: 16,
         padding: '12px 20px',
-        color: 'white',
+        color: 'var(--app-fg)',
         minWidth: 320,
       }}
     >
@@ -115,7 +115,7 @@ export const ScoreBoard: React.FC<ScoreBoardProps> = ({
               fontWeight: 600,
               opacity: 0.8,
               marginBottom: 2,
-              color: isPlayerTurn ? '#60a5fa' : 'white',
+              color: isPlayerTurn ? '#2563eb' : 'var(--app-fg)',
             }}
           >
             🧑 YOU
@@ -125,7 +125,7 @@ export const ScoreBoard: React.FC<ScoreBoardProps> = ({
               fontSize: 38,
               fontWeight: 900,
               lineHeight: 1,
-              color: isPlayerTurn ? '#60a5fa' : 'white',
+              color: isPlayerTurn ? '#2563eb' : 'var(--app-fg)',
               textShadow: isPlayerTurn ? '0 0 16px #3b82f6' : 'none',
             }}
           >
@@ -143,7 +143,7 @@ export const ScoreBoard: React.FC<ScoreBoardProps> = ({
               fontWeight: 600,
               opacity: 0.8,
               marginBottom: 2,
-              color: !isPlayerTurn ? '#f87171' : 'white',
+              color: !isPlayerTurn ? '#dc2626' : 'var(--app-fg)',
             }}
           >
             CPU 🤖
@@ -153,7 +153,7 @@ export const ScoreBoard: React.FC<ScoreBoardProps> = ({
               fontSize: 38,
               fontWeight: 900,
               lineHeight: 1,
-              color: !isPlayerTurn ? '#f87171' : 'white',
+              color: !isPlayerTurn ? '#dc2626' : 'var(--app-fg)',
               textShadow: !isPlayerTurn ? '0 0 16px #ef4444' : 'none',
             }}
           >

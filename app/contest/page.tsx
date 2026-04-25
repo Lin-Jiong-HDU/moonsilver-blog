@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { useSiteLanguage } from "@/app/components/language-provider";
 import { ProductJsonSitePanel } from "@/app/contest/product-json-site-panel";
 
@@ -70,16 +71,9 @@ function SectionLabel({ children }: { children: string }) {
   return <span className="text-xs font-medium uppercase tracking-[0.25em] text-white/30">{children}</span>;
 }
 
-function Footer() {
-  return (
-    <footer className="border-t border-white/5 py-8 text-center">
-      <p className="text-xs tracking-widest text-white/15">© {new Date().getFullYear()}</p>
-    </footer>
-  );
-}
-
 export default function ContestPage() {
   const { language } = useSiteLanguage();
+  const [isSmartCarOpen, setIsSmartCarOpen] = useState(false);
 
   const copy = {
     zh: {
@@ -91,9 +85,8 @@ export default function ContestPage() {
       smartCarDesc:
         "基于嵌入式系统的智能循迹小车设计，涵盖传感器融合、控制算法与硬件调试。",
       smartCarTags: ["嵌入式", "控制算法", "传感器"],
-      embedTitle: "智能车下面的 product_json_site",
-      embedDesc: "下面这块直接嵌入了产品分类 JSON 小站，可以点接口，也能看到随机返回值。",
-      footer: `© ${new Date().getFullYear()}`,
+      smartCarAction: "查看 JSON 小站",
+      smartCarClose: "收起 JSON 小站",
     },
     en: {
       eyebrow: "Contest",
@@ -104,9 +97,8 @@ export default function ContestPage() {
       smartCarDesc:
         "An embedded-system smart car project covering sensor fusion, control algorithms, and hardware debugging.",
       smartCarTags: ["Embedded", "Control Algorithms", "Sensors"],
-      embedTitle: "product_json_site under Smart Car",
-      embedDesc: "This block embeds the product category JSON mini-site. The endpoints are clickable and return random values.",
-      footer: `© ${new Date().getFullYear()}`,
+      smartCarAction: "View JSON Site",
+      smartCarClose: "Hide JSON Site",
     },
   }[language];
 
@@ -119,13 +111,23 @@ export default function ContestPage() {
           <p className="mt-4 max-w-2xl text-sm leading-relaxed text-white/40">{copy.description}</p>
         </div>
 
-        <div className="rounded-[28px] border border-white/8 bg-white/[0.01] p-6 transition-all duration-300 hover:border-white/25 hover:bg-white/[0.03]">
-          <div className="flex items-start gap-4">
+        <section className="rounded-[28px] border border-white/8 bg-white/[0.01] p-6 transition-all duration-300 hover:border-white/25 hover:bg-white/[0.03]">
+          <button
+            type="button"
+            onClick={() => setIsSmartCarOpen((current) => !current)}
+            aria-expanded={isSmartCarOpen}
+            className="flex w-full items-start gap-4 text-left"
+          >
             <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-white/10">
               <span className="text-xl">🚗</span>
             </div>
             <div className="min-w-0 flex-1">
-              <h2 className="font-semibold text-white">{copy.smartCarTitle}</h2>
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <h2 className="font-semibold text-white">{copy.smartCarTitle}</h2>
+                <span className="rounded-full border border-white/10 px-3 py-1 text-xs text-white/45 transition-colors hover:border-white/25 hover:text-white">
+                  {isSmartCarOpen ? copy.smartCarClose : copy.smartCarAction}
+                </span>
+              </div>
               <p className="mb-3 text-xs text-white/30">{copy.smartCarSubtitle}</p>
               <p className="mb-4 text-sm leading-relaxed text-white/50">{copy.smartCarDesc}</p>
               <div className="flex flex-wrap gap-1.5">
@@ -136,20 +138,20 @@ export default function ContestPage() {
                 ))}
               </div>
             </div>
-          </div>
-        </div>
+          </button>
 
-        <div className="mt-6">
-          <ProductJsonSitePanel />
-        </div>
+          {isSmartCarOpen ? (
+            <div className="mt-6 border-t border-white/8 pt-6">
+              <ProductJsonSitePanel embedded />
+            </div>
+          ) : null}
+        </section>
 
         <div className="mt-14 grid grid-cols-1 gap-4 md:grid-cols-2">
           {categories.map((category) => (
             <div
               key={category.id}
-              className={`group relative rounded-2xl border border-white/8 bg-white/[0.01] p-6 transition-all duration-300 hover:border-white/25 hover:bg-white/[0.04] ${
-                category.id === "service-outsourcing" ? "md:col-span-2" : ""
-              }`}
+              className="group relative rounded-2xl border border-white/8 bg-white/[0.01] p-6 transition-all duration-300 hover:border-white/25 hover:bg-white/[0.04]"
             >
               <div className="absolute left-6 right-6 top-0 h-px bg-[linear-gradient(90deg,transparent,rgba(255,255,255,0.15),transparent)] opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
 
@@ -174,8 +176,6 @@ export default function ContestPage() {
           ))}
         </div>
       </div>
-
-      <Footer />
     </div>
   );
 }

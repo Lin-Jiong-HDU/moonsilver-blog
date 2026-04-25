@@ -24,7 +24,7 @@ export const GameOver: React.FC<GameOverProps> = ({
   return (
     <div
       style={{
-        color: 'white',
+        color: 'var(--app-fg)',
         textAlign: 'center',
         padding: '32px 24px',
         maxWidth: 500,
@@ -73,7 +73,8 @@ export const GameOver: React.FC<GameOverProps> = ({
           alignItems: 'center',
           gap: 20,
           margin: '20px 0',
-          background: 'rgba(255,255,255,0.07)',
+          background: 'var(--app-surface)',
+          border: '1px solid var(--app-border)',
           borderRadius: 16,
           padding: '20px 32px',
         }}
@@ -92,7 +93,8 @@ export const GameOver: React.FC<GameOverProps> = ({
       {/* Round breakdown */}
       <div
         style={{
-          background: 'rgba(0,0,0,0.3)',
+          background: 'var(--app-surface)',
+          border: '1px solid var(--app-border)',
           borderRadius: 12,
           padding: '16px 20px',
           marginBottom: 28,
@@ -155,13 +157,13 @@ export const GameOver: React.FC<GameOverProps> = ({
         <button
           onClick={onMenu}
           style={{
-            background: 'rgba(255,255,255,0.1)',
-            border: '1px solid rgba(255,255,255,0.2)',
+            background: 'var(--app-surface)',
+            border: '1px solid var(--app-border)',
             borderRadius: 50,
             padding: '14px 32px',
             fontSize: 16,
             fontWeight: 700,
-            color: 'white',
+            color: 'var(--app-fg)',
             cursor: 'pointer',
             letterSpacing: 1,
             transition: 'transform 0.1s',

@@ -7,7 +7,7 @@ import { PRODUCT_ENDPOINTS, type ProductEndpoint } from "@/app/contest/product-j
 
 type ResultMap = Partial<Record<ProductEndpoint, string>>;
 
-export function ProductJsonSitePanel() {
+export function ProductJsonSitePanel({ embedded = false }: { embedded?: boolean }) {
   const { language } = useSiteLanguage();
   const [results, setResults] = useState<ResultMap>({});
 
@@ -51,10 +51,10 @@ export function ProductJsonSitePanel() {
   }, []);
 
   return (
-    <section className="rounded-[28px] border border-white/8 bg-white/[0.02] p-6 md:p-8">
+    <section className={embedded ? "" : "rounded-[28px] border border-white/8 bg-white/[0.02] p-6 md:p-8"}>
       <div className="max-w-3xl">
         <p className="text-xs font-medium uppercase tracking-[0.25em] text-white/30">{copy.eyebrow}</p>
-        <h2 className="mt-4 text-3xl font-semibold tracking-tight md:text-4xl">{copy.title}</h2>
+        <h2 className="mt-4 text-2xl font-semibold tracking-tight md:text-3xl">{copy.title}</h2>
         <p className="mt-4 max-w-2xl text-sm leading-relaxed text-white/45 md:text-base">{copy.intro}</p>
       </div>
 
