@@ -8,7 +8,7 @@ export const PRODUCT_ENDPOINTS: Array<{
 }> = [
   {
     endpoint: "/contest/api/food.json",
-    title: { zh: "食物", en: "Food" },
+    title: { zh: "食品", en: "Food" },
     intro: {
       zh: "每次访问会从水果、肉类、乳制品等子类中随机返回一个结果。",
       en: "Each request returns one random item from fruits, meats, dairy, and other subcategories.",
