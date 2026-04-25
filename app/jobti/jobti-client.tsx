@@ -170,11 +170,13 @@ export function JobtiClient() {
     return (
       <div className="min-h-screen bg-black pt-20 text-white">
         <section className="mx-auto max-w-4xl px-6 py-24">
-          <Link href="/fun" className="mb-10 inline-flex rounded-full border border-white/10 px-4 py-2 text-sm text-white/60 transition-colors hover:border-white/20 hover:text-white">
-            {copy.backToFun}
-          </Link>
+          <div className="mb-10 space-y-3">
+            <Link href="/fun" className="inline-flex rounded-full border border-white/10 px-4 py-2 text-sm text-white/60 transition-colors hover:border-white/20 hover:text-white">
+              {copy.backToFun}
+            </Link>
+            <SectionLabel>{copy.label}</SectionLabel>
+          </div>
 
-          <SectionLabel>{copy.label}</SectionLabel>
           <h1 className="mt-4 text-4xl font-bold md:text-5xl">{copy.title}</h1>
           <p className="mt-4 max-w-2xl text-sm leading-relaxed text-white/40">{copy.intro}</p>
 
@@ -202,12 +204,14 @@ export function JobtiClient() {
     return (
       <div className="min-h-screen bg-black pt-20 text-white">
         <section className="mx-auto max-w-4xl px-6 py-24">
-          <Link href="/fun" className="mb-10 inline-flex rounded-full border border-white/10 px-4 py-2 text-sm text-white/60 transition-colors hover:border-white/20 hover:text-white">
-            {copy.backToFun}
-          </Link>
+          <div className="mb-12 space-y-3">
+            <Link href="/fun" className="inline-flex rounded-full border border-white/10 px-4 py-2 text-sm text-white/60 transition-colors hover:border-white/20 hover:text-white">
+              {copy.backToFun}
+            </Link>
+            <SectionLabel>{copy.label}</SectionLabel>
+          </div>
 
           <div className="mb-12">
-            <SectionLabel>{copy.title}</SectionLabel>
             <div className="mt-4 flex items-end justify-between gap-6">
               <div>
                 <h1 className="text-4xl font-bold md:text-5xl">{copy.questionPrefix(currentIndex + 1, normalizedQuestions.length)}</h1>
@@ -281,11 +285,13 @@ export function JobtiClient() {
   return (
     <div className="min-h-screen bg-black pt-20 text-white">
       <section className="mx-auto max-w-4xl px-6 py-24">
-        <Link href="/fun" className="mb-10 inline-flex rounded-full border border-white/10 px-4 py-2 text-sm text-white/60 transition-colors hover:border-white/20 hover:text-white">
-          {copy.backToFunEnd}
-        </Link>
+        <div className="mb-10 space-y-3">
+          <Link href="/fun" className="inline-flex rounded-full border border-white/10 px-4 py-2 text-sm text-white/60 transition-colors hover:border-white/20 hover:text-white">
+            {copy.backToFunEnd}
+          </Link>
+          <SectionLabel>{copy.resultLabel}</SectionLabel>
+        </div>
 
-        <SectionLabel>{copy.resultLabel}</SectionLabel>
         <div className="mt-4">
           <h1 className="text-4xl font-bold md:text-5xl">
             {result.careerType.career_code} · {result.careerType.type_name}

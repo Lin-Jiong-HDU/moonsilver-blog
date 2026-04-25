@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { getAllBlogPosts } from "@/app/lib/blog-content";
+import { getFeedEntries } from "@/app/lib/feed-content";
 import BlogPageClient from "./blog-page-client";
 
 export const metadata: Metadata = {
@@ -9,6 +10,7 @@ export const metadata: Metadata = {
 
 export default async function BlogPage() {
   const posts = await getAllBlogPosts();
+  const feedEntries = await getFeedEntries();
 
-  return <BlogPageClient posts={posts} />;
+  return <BlogPageClient posts={posts} feedEntries={feedEntries} />;
 }
