@@ -42,23 +42,23 @@ export default function BlogPostClient({ post }: BlogPostClientProps) {
             }).format(new Date(post.publishedAt))}
           </p>
           <h1 className="mt-4 text-4xl font-bold tracking-tight md:text-5xl">{post.title}</h1>
-          <p className="mt-4 max-w-3xl text-sm leading-relaxed text-[var(--app-muted)] md:text-base">
-            {post.excerpt}
-          </p>
+          <p className="mt-4 max-w-3xl text-sm leading-relaxed text-[var(--app-muted)] md:text-base">{post.excerpt}</p>
 
-          <div className="mt-6 flex flex-wrap gap-2">
-            {post.tags.map((tag) => (
-              <span
-                key={tag}
-                className="rounded-full border border-[var(--app-border)] px-3 py-1 text-[11px] uppercase tracking-[0.18em] text-[var(--app-muted)]"
-              >
-                {tag}
-              </span>
-            ))}
-          </div>
+          {post.tags.length > 0 ? (
+            <div className="mt-6 flex flex-wrap gap-2">
+              {post.tags.map((tag) => (
+                <span
+                  key={tag}
+                  className="rounded-full border border-[var(--app-border)] px-3 py-1 text-[11px] uppercase tracking-[0.18em] text-[var(--app-muted)]"
+                >
+                  {tag}
+                </span>
+              ))}
+            </div>
+          ) : null}
 
-          <div className="mt-10 space-y-6 text-[var(--app-fg)]/90 [&_h2]:mt-10 [&_h2]:text-2xl [&_h2]:font-semibold [&_p]:leading-8 [&_ul]:list-disc [&_ul]:pl-6 [&_ol]:list-decimal [&_ol]:pl-6 [&_li]:mt-2 [&_code]:rounded [&_code]:bg-white/5 [&_code]:px-1.5 [&_code]:py-0.5 [&_code]:text-sm">
-            <div dangerouslySetInnerHTML={{ __html: post.contentHtml }} />
+          <div className="mt-10 space-y-6 text-[var(--app-fg)]/90 [&_a]:underline [&_blockquote]:border-l [&_blockquote]:border-[var(--app-border-strong)] [&_blockquote]:pl-5 [&_blockquote]:text-[var(--app-muted)] [&_code]:rounded [&_code]:bg-white/5 [&_code]:px-1.5 [&_code]:py-0.5 [&_code]:text-sm [&_h2]:mt-10 [&_h2]:text-2xl [&_h2]:font-semibold [&_h3]:mt-8 [&_h3]:text-xl [&_h3]:font-semibold [&_li]:mt-2 [&_ol]:list-decimal [&_ol]:pl-6 [&_p]:leading-8 [&_ul]:list-disc [&_ul]:pl-6">
+            <div dangerouslySetInnerHTML={{ __html: post.content }} />
           </div>
         </article>
       </section>

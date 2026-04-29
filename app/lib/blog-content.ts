@@ -1,5 +1,5 @@
 import path from "node:path";
-import { readdir, readFile } from "node:fs/promises";
+import { readdir, readFile, stat } from "node:fs/promises";
 
 export type BlogPost = {
   slug: string;
@@ -8,63 +8,187 @@ export type BlogPost = {
   publishedAt: string;
   updatedAt: string;
   tags: string[];
-  contentHtml: string;
+  content: string;
 };
 
 const BLOG_CONTENT_DIR = path.join(process.cwd(), "content", "blog");
+const SUPPORTED_EXTENSIONS = new Set([".md", ".markdown", ".txt"]);
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null;
 }
 
 function toStringArray(value: unknown): string[] {
-  if (!Array.isArray(value)) {
-    return [];
+  if (Array.isArray(value)) {
+    return value
+      .map((item) => (typeof item === "string" ? item.trim() : ""))
+      .filter(Boolean);
   }
 
-  return value
-    .map((item) => (typeof item === "string" ? item.trim() : ""))
-    .filter(Boolean);
+  if (typeof value === "string") {
+    return value
+      .split(",")
+      .map((item) => item.trim())
+      .filter(Boolean);
+  }
+
+  return [];
 }
 
 function normalizeDate(value: unknown, fallback: string) {
   return typeof value === "string" && value.trim() ? value : fallback;
 }
 
-function normalizePost(slug: string, value: unknown): BlogPost | null {
-  if (!isRecord(value)) {
-    return null;
+function escapeHtml(value: string) {
+  return value
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#39;");
+}
+
+function slugFromFileName(fileName: string) {
+  return fileName.replace(/\.(md|markdown|txt)$/i, "");
+}
+
+function parseFrontmatter(content: string): { data: Record<string, unknown>; body: string } {
+  const match = content.match(/^---\r?\n([\s\S]*?)\r?\n---\r?\n([\s\S]*)$/);
+  if (!match) {
+    return { data: {}, body: content };
   }
 
-  const title = typeof value.title === "string" ? value.title.trim() : "";
-  const excerpt = typeof value.excerpt === "string" ? value.excerpt.trim() : "";
-  const contentHtml = typeof value.contentHtml === "string" ? value.contentHtml.trim() : "";
+  const yamlStr = match[1];
+  const body = match[2];
+  const data: Record<string, unknown> = {};
 
-  if (!title || !excerpt || !contentHtml) {
-    return null;
+  for (const line of yamlStr.split("\n")) {
+    const colonIndex = line.indexOf(":");
+    if (colonIndex === -1) continue;
+    const key = line.slice(0, colonIndex).trim();
+    const value = line.slice(colonIndex + 1).trim();
+    if (key) {
+      if (value.startsWith("[") && value.endsWith("]")) {
+        data[key] = value
+          .slice(1, -1)
+          .split(",")
+          .map((s) => s.trim().replace(/^["']|["']$/g, ""));
+      } else {
+        data[key] = value.replace(/^["']|["']$/g, "");
+      }
+    }
   }
 
-  const today = new Date().toISOString().slice(0, 10);
+  return { data, body };
+}
+
+function applyInlineMarkdown(value: string) {
+  return escapeHtml(value)
+    .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
+    .replace(/\*(.+?)\*/g, "<em>$1</em>")
+    .replace(/`(.+?)`/g, "<code>$1</code>")
+    .replace(/\[(.+?)\]\((https?:\/\/[^)\s]+)\)/g, '<a href="$2" target="_blank" rel="noreferrer">$1</a>');
+}
+
+function parseMarkdownToHtml(markdown: string): string {
+  const blocks = markdown
+    .replace(/\r\n/g, "\n")
+    .split(/\n{2,}/)
+    .map((block) => block.trim())
+    .filter(Boolean);
+
+  return blocks
+    .map((block) => {
+      if (/^###\s+/.test(block)) {
+        return `<h3>${applyInlineMarkdown(block.replace(/^###\s+/, ""))}</h3>`;
+      }
+
+      if (/^##\s+/.test(block)) {
+        return `<h2>${applyInlineMarkdown(block.replace(/^##\s+/, ""))}</h2>`;
+      }
+
+      if (/^#\s+/.test(block)) {
+        return `<h1>${applyInlineMarkdown(block.replace(/^#\s+/, ""))}</h1>`;
+      }
+
+      if (/^>\s+/.test(block)) {
+        return `<blockquote>${applyInlineMarkdown(block.replace(/^>\s+/gm, ""))}</blockquote>`;
+      }
+
+      if (/^---+$/.test(block)) {
+        return "<hr />";
+      }
+
+      const unorderedItems = block.match(/^[-*]\s+(.+)$/gm);
+      if (unorderedItems && unorderedItems.length === block.split("\n").length) {
+        return `<ul>${unorderedItems.map((item) => `<li>${applyInlineMarkdown(item.replace(/^[-*]\s+/, ""))}</li>`).join("")}</ul>`;
+      }
+
+      const orderedItems = block.match(/^\d+\.\s+(.+)$/gm);
+      if (orderedItems && orderedItems.length === block.split("\n").length) {
+        return `<ol>${orderedItems.map((item) => `<li>${applyInlineMarkdown(item.replace(/^\d+\.\s+/, ""))}</li>`).join("")}</ol>`;
+      }
+
+      return `<p>${applyInlineMarkdown(block).replace(/\n/g, "<br />")}</p>`;
+    })
+    .join("");
+}
+
+function getFirstTextBlock(body: string, excluded?: string) {
+  return (
+    body
+      .split(/\n{2,}|\n/)
+      .map((line) => line.replace(/^#+\s+/, "").trim())
+      .find((line) => line && line !== excluded) ?? ""
+  );
+}
+
+function createExcerpt(body: string, title: string) {
+  const firstBlock = getFirstTextBlock(body, title);
+  if (!firstBlock) {
+    return title;
+  }
+
+  return firstBlock.length > 140 ? `${firstBlock.slice(0, 140)}...` : firstBlock;
+}
+
+function normalizePost(
+  slug: string,
+  data: Record<string, unknown>,
+  body: string,
+  fallbackDate: string,
+): BlogPost | null {
+  const bodyTitle = getFirstTextBlock(body);
+  const title = typeof data.title === "string" && data.title.trim() ? data.title.trim() : bodyTitle;
+  const content = body.trim();
+  const excerpt =
+    typeof data.excerpt === "string" && data.excerpt.trim() ? data.excerpt.trim() : createExcerpt(content, title);
+
+  if (!title || !content) {
+    return null;
+  }
 
   return {
     slug,
     title,
     excerpt,
-    publishedAt: normalizeDate(value.publishedAt, today),
-    updatedAt: normalizeDate(value.updatedAt, normalizeDate(value.publishedAt, today)),
-    tags: toStringArray(value.tags),
-    contentHtml,
+    publishedAt: normalizeDate(data.publishedAt, fallbackDate),
+    updatedAt: normalizeDate(data.updatedAt, normalizeDate(data.publishedAt, fallbackDate)),
+    tags: toStringArray(data.tags),
+    content: parseMarkdownToHtml(content),
   };
 }
 
 async function readPostFile(fileName: string): Promise<BlogPost | null> {
-  const slug = fileName.replace(/\.json$/i, "");
+  const slug = slugFromFileName(fileName);
   const filePath = path.join(BLOG_CONTENT_DIR, fileName);
 
   try {
+    const fileStat = await stat(filePath);
+    const fallbackDate = fileStat.mtime.toISOString().slice(0, 10);
     const raw = await readFile(filePath, "utf8");
-    const parsed = JSON.parse(raw) as unknown;
-    return normalizePost(slug, parsed);
+    const { data, body } = parseFrontmatter(raw);
+    return normalizePost(slug, data, body, fallbackDate);
   } catch {
     return null;
   }
@@ -73,17 +197,14 @@ async function readPostFile(fileName: string): Promise<BlogPost | null> {
 export async function getAllBlogPosts(): Promise<BlogPost[]> {
   try {
     const entries = await readdir(BLOG_CONTENT_DIR, { withFileTypes: true });
-    const files = entries.filter((entry) => entry.isFile() && entry.name.toLowerCase().endsWith(".json"));
+    const files = entries.filter((entry) => entry.isFile() && SUPPORTED_EXTENSIONS.has(path.extname(entry.name).toLowerCase()));
     const posts = await Promise.all(files.map((entry) => readPostFile(entry.name)));
 
     return posts
       .filter((post): post is BlogPost => Boolean(post))
       .sort((a, b) => {
         const dateDiff = b.publishedAt.localeCompare(a.publishedAt);
-        if (dateDiff !== 0) {
-          return dateDiff;
-        }
-
+        if (dateDiff !== 0) return dateDiff;
         return b.updatedAt.localeCompare(a.updatedAt);
       });
   } catch {

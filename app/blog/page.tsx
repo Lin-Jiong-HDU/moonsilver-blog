@@ -5,7 +5,7 @@ import BlogPageClient from "./blog-page-client";
 
 export const metadata: Metadata = {
   title: "Blog / 博客",
-  description: "A local file-driven blog index / 基于本地文件驱动的博客索引。",
+  description: "A local text-file driven blog index / 基于本地文本文件的博客索引。",
 };
 
 export default async function BlogPage() {

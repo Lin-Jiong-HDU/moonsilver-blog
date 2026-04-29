@@ -1,0 +1,18 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm install *)",
+      "Bash(pnpm install *)",
+      "Bash(npm --version)",
+      "Bash(npm cache *)",
+      "Bash(npm run *)",
+      "Bash(npx pnpm *)",
+      "Bash(npx next *)",
+      "Bash(curl -s http://localhost:3000/blog)",
+      "Bash(netstat -ano)",
+      "Bash(findstr \":3000\")",
+      "Bash(node node_modules/next/dist/bin/next dev)",
+      "Bash(node \"node_modules/.pnpm/next@16.2.4_@babel+core@7.2_c8206e0b14d95065a91ef00b15159908/node_modules/next/dist/bin/next\" dev)"
+    ]
+  }
+}

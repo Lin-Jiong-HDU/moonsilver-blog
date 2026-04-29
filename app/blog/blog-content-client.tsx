@@ -24,15 +24,15 @@ const copy: Record<
   zh: {
     search: "搜索文章...",
     readMore: "阅读文章",
-    emptyWithPosts: "没有找到匹配的文章",
-    emptyWithoutPosts: "还没有文章。去 `content/blog` 里新增一个 JSON 文件吧。",
+    emptyWithPosts: "没有找到匹配的文章。",
+    emptyWithoutPosts: "还没有文章。去 `content/blog` 里新增一个文本文件吧。",
     dateLocale: "zh-CN",
   },
   en: {
     search: "Search posts...",
     readMore: "Read article",
     emptyWithPosts: "No matching posts found.",
-    emptyWithoutPosts: "No posts yet. Add a JSON file in `content/blog`.",
+    emptyWithoutPosts: "No posts yet. Add a text file in `content/blog`.",
     dateLocale: "en-US",
   },
 };
@@ -82,21 +82,21 @@ export default function BlogContentClient({ posts }: BlogContentClientProps) {
               <p className="text-xs uppercase tracking-[0.2em] text-[var(--app-muted)]">
                 {formatBlogDate(post.publishedAt, language)}
               </p>
-              <h2 className="mt-4 text-2xl font-semibold tracking-tight text-[var(--app-fg)]">
-                {post.title}
-              </h2>
+              <h2 className="mt-4 text-2xl font-semibold tracking-tight text-[var(--app-fg)]">{post.title}</h2>
               <p className="mt-3 text-sm leading-relaxed text-[var(--app-muted)]">{post.excerpt}</p>
 
-              <div className="mt-6 flex flex-wrap gap-2">
-                {post.tags.map((tag) => (
-                  <span
-                    key={tag}
-                    className="rounded-full border border-[var(--app-border)] px-3 py-1 text-[11px] uppercase tracking-[0.18em] text-[var(--app-muted)]"
-                  >
-                    {tag}
-                  </span>
-                ))}
-              </div>
+              {post.tags.length > 0 ? (
+                <div className="mt-6 flex flex-wrap gap-2">
+                  {post.tags.map((tag) => (
+                    <span
+                      key={tag}
+                      className="rounded-full border border-[var(--app-border)] px-3 py-1 text-[11px] uppercase tracking-[0.18em] text-[var(--app-muted)]"
+                    >
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+              ) : null}
 
               <span className="mt-6 inline-flex text-sm text-[var(--app-fg)]/70 transition-colors group-hover:text-[var(--app-fg)]">
                 {copy[language].readMore}

@@ -14,7 +14,7 @@ const copy = {
   zh: {
     eyebrow: "博客",
     title: "moonsilver 的博客",
-    description: "记录一些琐碎的日常和想法。",
+    description: "把文本放进 content/blog，就会出现在这里。",
     feedLabel: "订阅源",
     feedTitle: "John Lin feed",
     feedDescription: "展示来自 https://www.johnlin.top/feed.xml 的最新条目。",
@@ -24,7 +24,7 @@ const copy = {
   en: {
     eyebrow: "Blog",
     title: "moonsilver blog",
-    description: "Notes, drafts, and occasional long-form posts.",
+    description: "Drop a text file into content/blog and it will show up here.",
     feedLabel: "Subscription",
     feedTitle: "John Lin feed",
     feedDescription: "Latest items pulled from https://www.johnlin.top/feed.xml.",
@@ -38,13 +38,17 @@ export default function BlogPageClient({ posts, feedEntries }: BlogPageClientPro
 
   return (
     <div className="min-h-screen bg-[var(--app-bg)] pt-24 text-[var(--app-fg)] transition-colors duration-300">
-      <section className="mx-auto grid max-w-7xl gap-8 px-6 py-16 lg:grid-cols-[1fr_0.85fr] lg:items-start">
+      <section className="mx-auto max-w-7xl px-6 py-16">
         <div className="max-w-3xl">
           <p className="text-xs uppercase tracking-[0.25em] text-[var(--app-muted)]">{copy[language].eyebrow}</p>
           <h1 className="mt-4 text-4xl font-bold tracking-tight md:text-5xl">{copy[language].title}</h1>
           <p className="mt-4 text-sm leading-relaxed text-[var(--app-muted)] md:text-base">{copy[language].description}</p>
         </div>
+      </section>
 
+      <BlogContentClient posts={posts} />
+
+      <section className="mx-auto max-w-7xl px-6 pb-16">
         <aside className="rounded-[28px] border border-[var(--app-border)] bg-[var(--app-surface)]/70 p-6">
           <p className="text-xs uppercase tracking-[0.25em] text-[var(--app-muted)]">{copy[language].feedLabel}</p>
           <h2 className="mt-4 text-2xl font-semibold tracking-tight">{copy[language].feedTitle}</h2>
@@ -82,8 +86,6 @@ export default function BlogPageClient({ posts, feedEntries }: BlogPageClientPro
           </a>
         </aside>
       </section>
-
-      <BlogContentClient posts={posts} />
     </div>
   );
 }

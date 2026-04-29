@@ -28,7 +28,7 @@ const entries: Entry[] = [
   {
     href: "/fun/2048",
     title: { zh: "2048", en: "2048" },
-    description: { zh: "滑动合并，往一个角落堆数字", en: "Slide and merge tiles toward one corner" },
+    description: { zh: "滑动合并，向一个角堆数字", en: "Slide and merge tiles toward one corner" },
     note: { zh: "游戏", en: "Game" },
   },
   {
@@ -45,17 +45,30 @@ const entries: Entry[] = [
   },
 ];
 
-const easterEggKeywords = ["inter"];
+const storyEntry: Entry = {
+  href: "/fun/story",
+  title: { zh: "dxy.word", en: "dxy.word" },
+  description: { zh: "第一个隐藏故事", en: "The first hidden story" },
+  note: { zh: "Story", en: "Story" },
+};
+
+const interEasterEggKeywords = ["inter"];
+const storyKeywords = ["story"];
 
 function normalize(value: string) {
   return value.trim().toLowerCase();
+}
+
+function matchesHiddenKeyword(query: string, keywords: string[]) {
+  return keywords.includes(query);
 }
 
 export default function FunPage() {
   const { language } = useSiteLanguage();
   const [searchQuery, setSearchQuery] = useState("");
   const normalizedQuery = normalize(searchQuery);
-  const showInterEasterEgg = easterEggKeywords.includes(normalizedQuery);
+  const showInterEasterEgg = matchesHiddenKeyword(normalizedQuery, interEasterEggKeywords);
+  const showStoryEntry = matchesHiddenKeyword(normalizedQuery, storyKeywords);
 
   const copy =
     language === "en"
@@ -73,12 +86,16 @@ export default function FunPage() {
           title: "Fun",
           description: "点进去就能玩。",
           search: "搜索游戏...",
-          empty: "没有找到匹配的游戏。",
+          empty: "没有找到匹配的内容。",
           footer: "选一个模块，然后继续往下走。",
           easterEggAria: "国米彩蛋",
         };
 
   const filteredEntries = useMemo(() => {
+    if (showStoryEntry) {
+      return [storyEntry];
+    }
+
     if (!normalizedQuery) {
       return entries;
     }
@@ -87,7 +104,7 @@ export default function FunPage() {
       const haystack = [entry.title[language], entry.description[language], entry.note[language]].join(" ").toLowerCase();
       return haystack.includes(normalizedQuery);
     });
-  }, [language, normalizedQuery]);
+  }, [language, normalizedQuery, showStoryEntry]);
 
   return (
     <div className="min-h-screen bg-[var(--app-bg)] pt-20 text-[var(--app-fg)] transition-colors duration-300">
@@ -116,9 +133,9 @@ export default function FunPage() {
           >
             <div className="flex items-start justify-between gap-4">
               <div>
-                <p className="text-[11px] uppercase tracking-[0.3em] text-[#d4af37]">⭐⭐</p>
-                <h2 className="mt-3 text-2xl font-semibold tracking-tight">FORZA INTER ⚫🔵</h2>
-                <p className="mt-2 text-sm font-medium text-[#f4df8c]">Two stars, one faith. ⭐⭐</p>
+                <p className="text-[11px] uppercase tracking-[0.3em] text-[#d4af37]">Easter egg</p>
+                <h2 className="mt-3 text-2xl font-semibold tracking-tight">FORZA INTER</h2>
+                <p className="mt-2 text-sm font-medium text-[#f4df8c]">Two stars, one faith.</p>
                 <p className="mt-3 max-w-xl text-sm leading-6 text-white/78">
                   A hidden Nerazzurri corner, found by those who know.
                 </p>
@@ -140,7 +157,7 @@ export default function FunPage() {
                   <p className="text-xs uppercase tracking-[0.22em] text-[var(--app-muted)]">{entry.note[language]}</p>
                   <h2 className="mt-4 text-3xl font-semibold tracking-tight">{entry.title[language]}</h2>
                   <p className="mt-4 max-w-xs text-sm leading-7 text-[var(--app-muted)]">{entry.description[language]}</p>
-                  <div className="mt-8 text-sm text-[var(--app-muted)] transition-transform group-hover:translate-x-1">→</div>
+                  <div className="mt-8 text-sm text-[var(--app-muted)] transition-transform group-hover:translate-x-1">-&gt;</div>
                 </Link>
               ))}
             </div>
